@@ -1,0 +1,5 @@
+{
+  "name": "gvc-dump-tracker",
+  "version": "1.0.0",
+  "description": "GVC Ecosystem Dump Tracker - tracks on-chain swaps across multiple wallets"
+}
