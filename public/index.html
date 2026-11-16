@@ -610,9 +610,11 @@ async function processWalletToken(wallet, tokenKey) {
       }
 
       // For NFT sales, also check native ETH value on the transaction
-      if (token.isNFT && !valueAmount) {
+      if (token.isNFT && !valueAmount && isSell && fetched < 30) {
         try {
           const txResp = await rateLimitedFetch(baseUrl + '/transactions/' + hash);
+          fetched++;
+          await new Promise(r => setTimeout(r, 1000));
           if (txResp && txResp.ok) {
             const txData = await txResp.json();
             const ethVal = parseFloat(txData.value || '0') / 1e18;
