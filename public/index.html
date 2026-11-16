@@ -206,24 +206,36 @@
     <div class="sub" id="damageSub">Loading swap data...</div>
   </div>
 
-  <div class="summary-cards">
+  <div class="summary-cards" style="grid-template-columns: repeat(3, 1fr);">
     <div class="summary-card">
-      <div class="label">STOKED Sold</div>
-      <div class="value loss" id="stokedSoldEth">--</div>
-      <div class="sub" id="stokedSoldCount">Loading...</div>
+      <div class="label">VIBESTR P&amp;L</div>
+      <div class="value" id="vibestrPnl">--</div>
+      <div class="sub" id="vibestrDetail">Loading...</div>
     </div>
     <div class="summary-card">
-      <div class="label">VIBESTR Sold</div>
-      <div class="value loss" id="vibestrSoldEth">--</div>
-      <div class="sub" id="vibestrSoldCount">Loading...</div>
+      <div class="label">STOKED P&amp;L</div>
+      <div class="value" id="stokedPnl">--</div>
+      <div class="sub" id="stokedDetail">Loading...</div>
     </div>
     <div class="summary-card">
-      <div class="label">GVC NFTs Sold</div>
-      <div class="value loss" id="gvcSoldEth">--</div>
-      <div class="sub" id="gvcSoldCount">Loading...</div>
+      <div class="label">GVC NFT P&amp;L</div>
+      <div class="value" id="gvcPnl">--</div>
+      <div class="sub" id="gvcDetail">Loading...</div>
+    </div>
+  </div>
+  <div class="summary-cards" style="grid-template-columns: repeat(3, 1fr); margin-top: 12px;">
+    <div class="summary-card">
+      <div class="label">Total Bought (In)</div>
+      <div class="value" id="totalBoughtEth" style="color:#4caf50;">--</div>
+      <div class="sub" id="totalBoughtSub">Loading...</div>
     </div>
     <div class="summary-card">
-      <div class="label">Net P&amp;L</div>
+      <div class="label">Total Sold (Out)</div>
+      <div class="value loss" id="totalSoldEth">--</div>
+      <div class="sub" id="totalSoldSub">Loading...</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">Net P&amp;L (All Tokens)</div>
       <div class="value" id="netPnl">--</div>
       <div class="eth" id="netPnlEth"></div>
       <div class="sub" id="netPnlSub">Loading...</div>
@@ -577,8 +589,8 @@ async function processWalletToken(wallet, tokenKey) {
       let valueAmount = null;
       let valueToken = null;
 
-      // Only do per-tx value lookups for sells (prioritize damage tracking) and cap total
-      if (fetched < 30 && isSell) {
+      // Per-tx value lookups for both buys and sells (for full PNL tracking)
+      if (fetched < 50) {
         try {
           const allTxTransfers = await fetchTxTokenTransfers(baseUrl, hash);
           fetched++;
@@ -609,8 +621,8 @@ async function processWalletToken(wallet, tokenKey) {
         } catch (e) { /* skip */ }
       }
 
-      // For NFT sales, also check native ETH value on the transaction
-      if (token.isNFT && !valueAmount && isSell && fetched < 30) {
+      // For NFT trades, also check native ETH value on the transaction
+      if (token.isNFT && !valueAmount && fetched < 50) {
         try {
           const txResp = await rateLimitedFetch(baseUrl + '/transactions/' + hash);
           fetched++;
@@ -706,38 +718,54 @@ function renderDamage() {
 
 function renderSummary() {
   const sells = filteredSwaps.filter(t => t.type === 'sell');
+  const buys = filteredSwaps.filter(t => t.type === 'buy');
 
-  // Per-token sell breakdowns
-  const tokenSells = { stoked: { eth: 0, usd: 0, count: 0 }, vibestr: { eth: 0, usd: 0, count: 0 }, gvc: { eth: 0, usd: 0, count: 0 } };
-  for (const t of sells) {
+  // Per-token full breakdowns (buys + sells)
+  const tokens = { stoked: { sellEth: 0, buyEth: 0, sellUsd: 0, buyUsd: 0, sellCount: 0, buyCount: 0 },
+                   vibestr: { sellEth: 0, buyEth: 0, sellUsd: 0, buyUsd: 0, sellCount: 0, buyCount: 0 },
+                   gvc:     { sellEth: 0, buyEth: 0, sellUsd: 0, buyUsd: 0, sellCount: 0, buyCount: 0 } };
+  for (const t of filteredSwaps) {
     const key = t.token;
-    if (tokenSells[key]) {
-      tokenSells[key].eth += getSwapEthValue(t);
-      tokenSells[key].usd += getSwapUsdValue(t);
-      tokenSells[key].count++;
+    if (!tokens[key]) continue;
+    const eth = getSwapEthValue(t);
+    const usd = getSwapUsdValue(t);
+    if (t.type === 'sell') {
+      tokens[key].sellEth += eth; tokens[key].sellUsd += usd; tokens[key].sellCount++;
+    } else {
+      tokens[key].buyEth += eth; tokens[key].buyUsd += usd; tokens[key].buyCount++;
     }
   }
 
-  document.getElementById('stokedSoldEth').textContent = formatEth(tokenSells.stoked.eth);
-  document.getElementById('stokedSoldCount').textContent = tokenSells.stoked.count + ' sells / ' + formatUsd(tokenSells.stoked.usd);
+  // Per-token PNL cards
+  for (const [key, label, isNft] of [['vibestr','VIBESTR',false], ['stoked','STOKED',false], ['gvc','GVC',true]]) {
+    const d = tokens[key];
+    const pnl = d.sellEth - d.buyEth;
+    const pnlEl = document.getElementById(key + 'Pnl');
+    pnlEl.textContent = (pnl >= 0 ? '+' : '') + formatEth(pnl);
+    pnlEl.className = 'value ' + (pnl >= 0 ? 'profit' : 'loss');
+    const sellLabel = isNft ? d.sellCount + ' NFTs sold' : d.sellCount + ' sells';
+    const buyLabel = isNft ? d.buyCount + ' NFTs bought' : d.buyCount + ' buys';
+    document.getElementById(key + 'Detail').innerHTML =
+      `<span style="color:#ff5252;">Sold: ${formatEth(d.sellEth)} (${sellLabel})</span><br>` +
+      `<span style="color:#4caf50;">Bought: ${formatEth(d.buyEth)} (${buyLabel})</span>`;
+  }
 
-  document.getElementById('vibestrSoldEth').textContent = formatEth(tokenSells.vibestr.eth);
-  document.getElementById('vibestrSoldCount').textContent = tokenSells.vibestr.count + ' sells / ' + formatUsd(tokenSells.vibestr.usd);
-
-  document.getElementById('gvcSoldEth').textContent = formatEth(tokenSells.gvc.eth);
-  document.getElementById('gvcSoldCount').textContent = tokenSells.gvc.count + ' GVC NFTs sold / ' + formatUsd(tokenSells.gvc.usd);
-
-  // PNL: buys vs sells
-  const buys = filteredSwaps.filter(t => t.type === 'buy');
+  // Totals
   let buyEth = 0, buyUsd = 0, sellEth = 0, sellUsd = 0;
   for (const t of sells) { sellEth += getSwapEthValue(t); sellUsd += getSwapUsdValue(t); }
   for (const t of buys) { buyEth += getSwapEthValue(t); buyUsd += getSwapUsdValue(t); }
+
+  document.getElementById('totalBoughtEth').textContent = formatEth(buyEth);
+  document.getElementById('totalBoughtSub').textContent = buys.length + ' buy txs / ' + formatUsd(buyUsd);
+  document.getElementById('totalSoldEth').textContent = formatEth(sellEth);
+  document.getElementById('totalSoldSub').textContent = sells.length + ' sell txs / ' + formatUsd(sellUsd);
+
   const pnlEth = sellEth - buyEth;
   const pnlUsd = sellUsd - buyUsd;
   const pnlEl = document.getElementById('netPnl');
-  pnlEl.textContent = (pnlEth >= 0 ? '+' : '-') + formatEth(Math.abs(pnlEth));
+  pnlEl.textContent = (pnlEth >= 0 ? '+' : '') + formatEth(pnlEth);
   pnlEl.className = 'value ' + (pnlEth >= 0 ? 'profit' : 'loss');
-  document.getElementById('netPnlEth').textContent = (pnlUsd >= 0 ? '+' : '-') + formatUsd(Math.abs(pnlUsd));
+  document.getElementById('netPnlEth').textContent = (pnlUsd >= 0 ? '+' : '') + formatUsd(pnlUsd);
   document.getElementById('netPnlSub').textContent = sells.length + ' sells / ' + buys.length + ' buys';
 }
 
