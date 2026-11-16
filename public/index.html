@@ -200,35 +200,33 @@
   </div>
 
   <div class="damage-banner" id="damageBanner">
-    <div class="label">Total Damage to GVC Ecosystem</div>
-    <div class="big-number" id="damageUsd">--</div>
-    <div class="eth-val" id="damageEth">-- ETH net extracted</div>
+    <div class="label">Total ETH Extracted from GVC Ecosystem</div>
+    <div class="eth-val" id="damageEth" style="font-size:48px;font-weight:800;margin:8px 0;">-- ETH</div>
+    <div class="big-number" id="damageUsd" style="font-size:20px;font-weight:600;">--</div>
     <div class="sub" id="damageSub">Loading swap data...</div>
   </div>
 
   <div class="summary-cards">
     <div class="summary-card">
-      <div class="label">Total Sold</div>
-      <div class="value loss" id="totalSells">--</div>
-      <div class="eth" id="totalSellsEth"></div>
-      <div class="sub" id="totalSellsCount">Loading...</div>
+      <div class="label">STOKED Sold</div>
+      <div class="value loss" id="stokedSoldEth">--</div>
+      <div class="sub" id="stokedSoldCount">Loading...</div>
     </div>
     <div class="summary-card">
-      <div class="label">Total Bought</div>
-      <div class="value profit" id="totalBuys">--</div>
-      <div class="eth" id="totalBuysEth"></div>
-      <div class="sub" id="totalBuysCount">Loading...</div>
+      <div class="label">VIBESTR Sold</div>
+      <div class="value loss" id="vibestrSoldEth">--</div>
+      <div class="sub" id="vibestrSoldCount">Loading...</div>
     </div>
     <div class="summary-card">
       <div class="label">GVC NFTs Sold</div>
-      <div class="value loss" id="gvcSold">--</div>
-      <div class="eth" id="gvcSoldEth"></div>
+      <div class="value loss" id="gvcSoldEth">--</div>
       <div class="sub" id="gvcSoldCount">Loading...</div>
     </div>
     <div class="summary-card">
-      <div class="label">Swap Count</div>
-      <div class="value" style="color:#6366f1;" id="swapCount">--</div>
-      <div class="sub" id="swapCountSub">Across 5 wallets</div>
+      <div class="label">Net P&amp;L</div>
+      <div class="value" id="netPnl">--</div>
+      <div class="eth" id="netPnlEth"></div>
+      <div class="sub" id="netPnlSub">Loading...</div>
     </div>
   </div>
 
@@ -289,8 +287,8 @@
           <option value="gvc">GVC NFT</option>
         </select>
         <select id="filterType">
-          <option value="all">Buys & Sells</option>
           <option value="sell">Sells Only</option>
+          <option value="all">Buys & Sells</option>
           <option value="buy">Buys Only</option>
         </select>
       </div>
@@ -692,56 +690,53 @@ function renderAll() {
 
 function renderDamage() {
   const sells = filteredSwaps.filter(t => t.type === 'sell');
-  const buys = filteredSwaps.filter(t => t.type === 'buy');
 
-  let sellEth = 0, buyEth = 0, sellUsd = 0, buyUsd = 0;
+  let sellEth = 0, sellUsd = 0;
   for (const t of sells) { sellEth += getSwapEthValue(t); sellUsd += getSwapUsdValue(t); }
-  for (const t of buys) { buyEth += getSwapEthValue(t); buyUsd += getSwapUsdValue(t); }
 
-  const netEth = sellEth - buyEth;
-  const netUsd = sellUsd - buyUsd;
-
-  document.getElementById('damageUsd').textContent = formatUsd(Math.abs(netUsd));
-  document.getElementById('damageEth').textContent = formatEth(Math.abs(netEth)) + ' net extracted';
+  document.getElementById('damageEth').textContent = formatEth(sellEth);
+  document.getElementById('damageUsd').textContent = formatUsd(sellUsd);
 
   const rangeLabel = activeRange === 'all' ? 'all time' : activeRange + ' days';
-  if (netUsd > 0) {
-    document.getElementById('damageSub').textContent =
-      `Net dumper across ${sells.length} sells in ${rangeLabel}. Sold more than bought.`;
-    document.getElementById('damageBanner').style.borderColor = '#ff5252';
-    document.getElementById('damageUsd').style.color = '#ff5252';
-  } else {
-    document.getElementById('damageSub').textContent =
-      `Net buyer in ${rangeLabel}. Bought more than sold.`;
-    document.getElementById('damageBanner').style.borderColor = '#00e676';
-    document.getElementById('damageUsd').style.color = '#00e676';
-  }
+  document.getElementById('damageSub').textContent =
+    `${sells.length} sell transactions across 5 wallets (${rangeLabel}). OTC/off-chain sales not included.`;
 }
 
 function renderSummary() {
   const sells = filteredSwaps.filter(t => t.type === 'sell');
+
+  // Per-token sell breakdowns
+  const tokenSells = { stoked: { eth: 0, usd: 0, count: 0 }, vibestr: { eth: 0, usd: 0, count: 0 }, gvc: { eth: 0, usd: 0, count: 0 } };
+  for (const t of sells) {
+    const key = t.token;
+    if (tokenSells[key]) {
+      tokenSells[key].eth += getSwapEthValue(t);
+      tokenSells[key].usd += getSwapUsdValue(t);
+      tokenSells[key].count++;
+    }
+  }
+
+  document.getElementById('stokedSoldEth').textContent = formatEth(tokenSells.stoked.eth);
+  document.getElementById('stokedSoldCount').textContent = tokenSells.stoked.count + ' sells / ' + formatUsd(tokenSells.stoked.usd);
+
+  document.getElementById('vibestrSoldEth').textContent = formatEth(tokenSells.vibestr.eth);
+  document.getElementById('vibestrSoldCount').textContent = tokenSells.vibestr.count + ' sells / ' + formatUsd(tokenSells.vibestr.usd);
+
+  document.getElementById('gvcSoldEth').textContent = formatEth(tokenSells.gvc.eth);
+  document.getElementById('gvcSoldCount').textContent = tokenSells.gvc.count + ' GVC NFTs sold / ' + formatUsd(tokenSells.gvc.usd);
+
+  // PNL: buys vs sells
   const buys = filteredSwaps.filter(t => t.type === 'buy');
-
-  let sellUsd = 0, buyUsd = 0, sellEth = 0, buyEth = 0;
-  for (const t of sells) { sellUsd += getSwapUsdValue(t); sellEth += getSwapEthValue(t); }
-  for (const t of buys) { buyUsd += getSwapUsdValue(t); buyEth += getSwapEthValue(t); }
-
-  document.getElementById('totalSells').textContent = formatUsd(sellUsd);
-  document.getElementById('totalSellsEth').textContent = formatEth(sellEth);
-  document.getElementById('totalSellsCount').textContent = sells.length + ' sell transactions';
-
-  document.getElementById('totalBuys').textContent = formatUsd(buyUsd);
-  document.getElementById('totalBuysEth').textContent = formatEth(buyEth);
-  document.getElementById('totalBuysCount').textContent = buys.length + ' buy transactions';
-
-  const gvcSells = filteredSwaps.filter(t => t.token === 'gvc' && t.type === 'sell');
-  let gvcUsd = 0, gvcEth = 0;
-  for (const t of gvcSells) { gvcUsd += getSwapUsdValue(t); gvcEth += getSwapEthValue(t); }
-  document.getElementById('gvcSold').textContent = formatUsd(gvcUsd);
-  document.getElementById('gvcSoldEth').textContent = formatEth(gvcEth);
-  document.getElementById('gvcSoldCount').textContent = gvcSells.length + ' GVC NFTs sold';
-
-  document.getElementById('swapCount').textContent = filteredSwaps.length;
+  let buyEth = 0, buyUsd = 0, sellEth = 0, sellUsd = 0;
+  for (const t of sells) { sellEth += getSwapEthValue(t); sellUsd += getSwapUsdValue(t); }
+  for (const t of buys) { buyEth += getSwapEthValue(t); buyUsd += getSwapUsdValue(t); }
+  const pnlEth = sellEth - buyEth;
+  const pnlUsd = sellUsd - buyUsd;
+  const pnlEl = document.getElementById('netPnl');
+  pnlEl.textContent = (pnlEth >= 0 ? '+' : '-') + formatEth(Math.abs(pnlEth));
+  pnlEl.className = 'value ' + (pnlEth >= 0 ? 'profit' : 'loss');
+  document.getElementById('netPnlEth').textContent = (pnlUsd >= 0 ? '+' : '-') + formatUsd(Math.abs(pnlUsd));
+  document.getElementById('netPnlSub').textContent = sells.length + ' sells / ' + buys.length + ' buys';
 }
 
 function renderTable() {
@@ -797,16 +792,17 @@ function renderTable() {
 
 function renderTimeline() {
   const ctx = document.getElementById('timelineChart').getContext('2d');
-  const sellsByDay = {}, buysByDay = {};
+  const sellsByDay = {};
 
   for (const t of filteredSwaps) {
+    if (t.type !== 'sell') continue;
     const day = t.date.toISOString().split('T')[0];
-    const val = getSwapUsdValue(t);
-    if (t.type === 'sell') sellsByDay[day] = (sellsByDay[day] || 0) + val;
-    else buysByDay[day] = (buysByDay[day] || 0) + val;
+    if (!sellsByDay[day]) sellsByDay[day] = { eth: 0, usd: 0 };
+    sellsByDay[day].eth += getSwapEthValue(t);
+    sellsByDay[day].usd += getSwapUsdValue(t);
   }
 
-  const days = [...new Set([...Object.keys(sellsByDay), ...Object.keys(buysByDay)])].sort();
+  const days = Object.keys(sellsByDay).sort();
 
   if (timelineChart) timelineChart.destroy();
   timelineChart = new Chart(ctx, {
@@ -814,20 +810,22 @@ function renderTimeline() {
     data: {
       labels: days,
       datasets: [
-        { label: 'Sells ($)', data: days.map(d => sellsByDay[d]||0), backgroundColor: 'rgba(255,82,82,0.7)', borderColor: '#ff5252', borderWidth: 1 },
-        { label: 'Buys ($)', data: days.map(d => buysByDay[d]||0), backgroundColor: 'rgba(0,230,118,0.7)', borderColor: '#00e676', borderWidth: 1 }
+        { label: 'Sells (ETH)', data: days.map(d => sellsByDay[d].eth), backgroundColor: 'rgba(255,82,82,0.7)', borderColor: '#ff5252', borderWidth: 1 }
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
-        title: { display: true, text: 'Daily Swap Volume (USD)', color: '#fff' },
+        title: { display: true, text: 'Daily Sell Volume (ETH)', color: '#fff' },
         legend: { labels: { color: '#888' } },
-        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + formatUsd(ctx.raw) } }
+        tooltip: { callbacks: {
+          label: ctx => formatEth(ctx.raw),
+          afterLabel: ctx => formatUsd(sellsByDay[days[ctx.dataIndex]].usd)
+        } }
       },
       scales: {
         x: { type: 'time', time: { unit: 'day' }, ticks: { color: '#666' }, grid: { color: '#1a1a2e' } },
-        y: { ticks: { color: '#666', callback: v => formatUsd(v) }, grid: { color: '#1a1a2e' } }
+        y: { ticks: { color: '#666', callback: v => v.toFixed(2) + ' ETH' }, grid: { color: '#1a1a2e' } }
       }
     }
   });
@@ -837,14 +835,11 @@ function renderVolume() {
   const ctx = document.getElementById('volumeChart').getContext('2d');
   const vol = {};
   for (const t of filteredSwaps) {
-    if (!vol[t.symbol]) vol[t.symbol] = { sellsUsd: 0, buysUsd: 0, sellsEth: 0, buysEth: 0 };
-    if (t.type === 'sell') {
-      vol[t.symbol].sellsUsd += getSwapUsdValue(t);
-      vol[t.symbol].sellsEth += getSwapEthValue(t);
-    } else {
-      vol[t.symbol].buysUsd += getSwapUsdValue(t);
-      vol[t.symbol].buysEth += getSwapEthValue(t);
-    }
+    if (t.type !== 'sell') continue;
+    if (!vol[t.symbol]) vol[t.symbol] = { eth: 0, usd: 0, count: 0 };
+    vol[t.symbol].eth += getSwapEthValue(t);
+    vol[t.symbol].usd += getSwapUsdValue(t);
+    vol[t.symbol].count++;
   }
   const labels = Object.keys(vol);
 
@@ -854,28 +849,29 @@ function renderVolume() {
     data: {
       labels,
       datasets: [
-        { label: 'Sold ($)', data: labels.map(l => vol[l].sellsUsd), backgroundColor: 'rgba(255,82,82,0.7)' },
-        { label: 'Bought ($)', data: labels.map(l => vol[l].buysUsd), backgroundColor: 'rgba(0,230,118,0.7)' }
+        { label: 'Sold (ETH)', data: labels.map(l => vol[l].eth), backgroundColor: [
+          'rgba(255,171,64,0.7)', 'rgba(0,230,118,0.7)', 'rgba(64,196,255,0.7)', 'rgba(224,64,251,0.7)'
+        ] }
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: {
-        title: { display: true, text: 'Volume by Token (USD)', color: '#fff' },
-        legend: { labels: { color: '#888' } },
+        title: { display: true, text: 'ETH Extracted by Token (Sells Only)', color: '#fff' },
+        legend: { display: false },
         tooltip: {
           callbacks: {
-            afterLabel: function(ctx) {
+            label: ctx => formatEth(ctx.raw),
+            afterLabel: ctx => {
               const sym = labels[ctx.dataIndex];
-              const eth = ctx.datasetIndex === 0 ? vol[sym].sellsEth : vol[sym].buysEth;
-              return formatEth(eth);
+              return formatUsd(vol[sym].usd) + ' (' + vol[sym].count + ' sells)';
             }
           }
         }
       },
       scales: {
         x: { ticks: { color: '#666' }, grid: { color: '#1a1a2e' } },
-        y: { ticks: { color: '#666', callback: v => formatUsd(v) }, grid: { color: '#1a1a2e' } }
+        y: { ticks: { color: '#666', callback: v => v.toFixed(2) + ' ETH' }, grid: { color: '#1a1a2e' } }
       }
     }
   });
@@ -921,33 +917,30 @@ function renderWallets() {
 
     let rows = '';
     for (const [sym, d] of Object.entries(tokenData)) {
+      if (d.soldCount === 0 && d.boughtCount === 0) continue;
       const isNft = d.token === 'gvc';
       rows += `
         <div class="net-row">
           <span><span class="token-tag token-${d.token}">${sym}</span></span>
-          <span>
-            <span class="buy">+${isNft ? d.boughtCount + ' NFT' : formatNum(d.boughtAmt)} (${d.boughtCount})</span>
-            &nbsp;/&nbsp;
-            <span class="sell">-${isNft ? d.soldCount + ' NFT' : formatNum(d.soldAmt)} (${d.soldCount})</span>
-          </span>
+          <span class="sell">${isNft ? d.soldCount + ' NFT' : formatNum(d.soldAmt)} sold (${d.soldCount})</span>
         </div>
         <div class="detail-row">
-          <span>In: ${formatUsd(d.boughtUsd)} / ${formatEth(d.boughtEth)}</span>
-          <span>Out: ${formatUsd(d.soldUsd)} / ${formatEth(d.soldEth)}</span>
+          <span>Sold: ${formatEth(d.soldEth)} / ${formatUsd(d.soldUsd)}</span>
+          <span>Bought: ${formatEth(d.boughtEth)} / ${formatUsd(d.boughtUsd)}</span>
         </div>
       `;
     }
-    if (!rows) rows = '<div style="color:#666;font-size:13px;padding:8px 0;">No swaps detected</div>';
+    if (!rows) rows = '<div style="color:#666;font-size:13px;padding:8px 0;">No sells detected</div>';
 
     const card = document.createElement('div');
     card.className = 'wallet-card';
     card.innerHTML = `
-      <h3>${name}</h3>
+      <h3>${name} <span style="font-size:13px;color:#ff5252;">${formatEth(walletSoldEth)} sold</span></h3>
       <div class="addr">${addr}</div>
       ${rows}
       <div class="total-row">
-        <span class="${netUsd > 0 ? 'loss' : 'profit'}">Net: ${netUsd > 0 ? '-' : '+'}${formatUsd(Math.abs(netUsd))}</span>
-        <span style="font-size:12px;color:#ffab40;">${netEth > 0 ? '-' : '+'}${formatEth(Math.abs(netEth))}</span>
+        <span class="loss">Sold: ${formatEth(walletSoldEth)}</span>
+        <span style="font-size:12px;color:#888;">PNL: <span class="${netEth > 0 ? 'loss' : 'profit'}">${netEth > 0 ? '-' : '+'}${formatEth(Math.abs(netEth))}</span></span>
       </div>
     `;
     grid.appendChild(card);
