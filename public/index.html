@@ -494,7 +494,10 @@ let fetchRunning = false;
 async function rateLimitedFetch(url, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
-      const r = await fetch(url);
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 15000);
+      const r = await fetch(url, { signal: ctrl.signal });
+      clearTimeout(timer);
       if (r.status === 429) {
         const wait = 3000 * (i + 1);
         console.warn('Rate limited, waiting ' + wait + 'ms...');
@@ -590,7 +593,7 @@ async function processWalletToken(wallet, tokenKey) {
       let valueToken = null;
 
       // Per-tx value lookups for both buys and sells (for full PNL tracking)
-      if (fetched < 50) {
+      if (fetched < 40) {
         try {
           const allTxTransfers = await fetchTxTokenTransfers(baseUrl, hash);
           fetched++;
@@ -622,7 +625,7 @@ async function processWalletToken(wallet, tokenKey) {
       }
 
       // For NFT trades, also check native ETH value on the transaction
-      if (token.isNFT && !valueAmount && fetched < 50) {
+      if (token.isNFT && !valueAmount && fetched < 40) {
         try {
           const txResp = await rateLimitedFetch(baseUrl + '/transactions/' + hash);
           fetched++;
