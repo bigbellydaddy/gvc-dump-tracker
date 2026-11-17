@@ -326,8 +326,8 @@ body {{
 
 <!-- Summary -->
 <div class="sum">
-    <div class="sc"><div class="lb">Total Invested</div><div class="vl">{grand_in:.2f}</div><div class="us">{fmt_usd(grand_in_usd)}</div></div>
-    <div class="sc"><div class="lb">Sold Back</div><div class="vl g">{grand_out:.2f}</div><div class="us">{fmt_usd(grand_out_usd)}</div></div>
+    <div class="sc"><div class="lb">ETH In</div><div class="vl">{grand_in:.2f}</div><div class="us">{fmt_usd(grand_in_usd)}</div></div>
+    <div class="sc"><div class="lb">ETH Out</div><div class="vl g">{grand_out:.2f}</div><div class="us">{fmt_usd(grand_out_usd)}</div></div>
     <div class="sc"><div class="lb">Still Holds</div><div class="vl b">{total_hold_eth:.2f}</div><div class="us">{HOLDINGS_GVC} GVC = {gvc_hold_eth:.2f}e &middot; {HOLDINGS_VIBESTR/1e6:.0f}M VIBESTR = {vib_hold_eth:.2f}e</div></div>
     <div class="sc"><div class="lb">Total P&L</div><div class="vl {'g' if adjusted_net > 0 else 'r'}">{adjusted_net:+.2f}</div><div class="us">{fmt_usd(abs(adjusted_net_usd))}</div></div>
 </div>
