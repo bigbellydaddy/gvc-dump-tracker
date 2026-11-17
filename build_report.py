@@ -247,172 +247,105 @@ body {{
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: #0d1117;
     color: #b1bac4;
-    padding: 32px;
-    max-width: 960px;
+    padding: 12px 16px;
+    max-width: 1200px;
     margin: 0 auto;
 }}
-a {{ color: #58a6ff; text-decoration: none; }}
 
-.header {{ margin-bottom: 32px; }}
-.header h1 {{ color: #e6edf3; font-size: 20px; font-weight: 700; }}
-.header .sub {{ color: #484f58; font-size: 11px; margin-top: 4px; }}
+/* Header row */
+.top {{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }}
+.top h1 {{ color: #e6edf3; font-size: 15px; font-weight: 700; }}
+.top .sub {{ color: #484f58; font-size: 9px; }}
 
-/* Summary strip */
-.summary {{
-    display: flex;
-    gap: 32px;
-    padding: 20px 24px;
-    background: #161b22;
-    border: 1px solid #21262d;
-    border-radius: 8px;
-    margin-bottom: 32px;
-    flex-wrap: wrap;
+/* Summary row */
+.sum {{ display: flex; gap: 4px; margin-bottom: 8px; }}
+.sc {{
+    flex: 1; padding: 6px 10px;
+    background: #161b22; border: 1px solid #21262d; border-radius: 6px;
 }}
-.s-item {{ }}
-.s-label {{ font-size: 10px; color: #484f58; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }}
-.s-val {{ font-size: 22px; font-weight: 700; font-family: 'SF Mono', ui-monospace, monospace; margin-top: 2px; }}
-.s-usd {{ font-size: 11px; color: #484f58; font-family: 'SF Mono', ui-monospace, monospace; }}
+.sc .lb {{ font-size: 8px; color: #484f58; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }}
+.sc .vl {{ font-size: 16px; font-weight: 700; font-family: 'SF Mono', ui-monospace, monospace; }}
+.sc .us {{ font-size: 9px; color: #484f58; font-family: 'SF Mono', ui-monospace, monospace; }}
 .r {{ color: #f85149; }}
 .g {{ color: #3fb950; }}
 .b {{ color: #58a6ff; }}
 
-/* Asset section */
+/* 2x2 grid for assets */
+.grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }}
 .asset {{
-    margin-bottom: 24px;
-    border: 1px solid #21262d;
-    border-radius: 8px;
-    overflow: hidden;
+    border: 1px solid #21262d; border-radius: 6px; overflow: hidden;
 }}
-.asset-head {{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 20px;
-    background: #161b22;
-    border-bottom: 1px solid #21262d;
+.ah {{
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 10px; background: #161b22; border-bottom: 1px solid #21262d;
 }}
-.asset-name {{
-    font-size: 13px;
-    font-weight: 700;
-    color: #e6edf3;
+.ah .nm {{ font-size: 11px; font-weight: 700; color: #e6edf3; }}
+.ah .tg {{ font-size: 8px; color: #484f58; background: #21262d; padding: 1px 6px; border-radius: 8px; }}
+.ast {{
+    display: flex; gap: 12px; padding: 6px 10px;
+    background: #0d1117; border-bottom: 1px solid #21262d; flex-wrap: wrap;
 }}
-.asset-tag {{
-    font-size: 10px;
-    color: #484f58;
-    background: #21262d;
-    padding: 2px 8px;
-    border-radius: 10px;
-}}
-.asset-stats {{
-    display: flex;
-    gap: 24px;
-    padding: 12px 20px;
-    background: #0d1117;
-    border-bottom: 1px solid #21262d;
-    flex-wrap: wrap;
-}}
-.as {{ }}
-.as-label {{ font-size: 9px; color: #484f58; text-transform: uppercase; letter-spacing: 0.3px; }}
-.as-val {{ font-size: 15px; font-weight: 700; font-family: 'SF Mono', ui-monospace, monospace; }}
-.as-sub {{ font-size: 10px; color: #484f58; font-family: 'SF Mono', ui-monospace, monospace; }}
+.ai .al {{ font-size: 7px; color: #484f58; text-transform: uppercase; letter-spacing: 0.3px; }}
+.ai .av {{ font-size: 12px; font-weight: 700; font-family: 'SF Mono', ui-monospace, monospace; }}
+.ai .au {{ font-size: 8px; color: #484f58; font-family: 'SF Mono', ui-monospace, monospace; }}
 
-/* Mini tables inside assets */
+/* Tables */
 .asset table {{ width: 100%; border-collapse: collapse; }}
 .asset th {{
-    text-align: right; font-size: 9px; color: #484f58; font-weight: 600;
-    padding: 6px 16px; text-transform: uppercase; letter-spacing: 0.3px;
+    text-align: right; font-size: 8px; color: #484f58; font-weight: 600;
+    padding: 3px 10px; text-transform: uppercase; letter-spacing: 0.3px;
     background: #0d1117; border-bottom: 1px solid #21262d;
 }}
 .asset th:first-child {{ text-align: left; }}
-.asset td {{ padding: 6px 16px; border-bottom: 1px solid #161b22; }}
-.wn {{ font-weight: 600; color: #c9d1d9; font-size: 12px; }}
-.n {{ text-align: right; font-family: 'SF Mono', ui-monospace, monospace; font-size: 12px; font-variant-numeric: tabular-nums; }}
+.asset td {{ padding: 1px 10px; border-bottom: 1px solid #161b22; }}
+.wn {{ font-weight: 600; color: #c9d1d9; font-size: 10px; }}
+.n {{ text-align: right; font-family: 'SF Mono', ui-monospace, monospace; font-size: 10px; font-variant-numeric: tabular-nums; }}
 .asset .tot td {{ background: #161b22; font-weight: 700; border-top: 1px solid #21262d; }}
 
-/* Holdings */
-.holdings {{
-    display: flex;
-    gap: 16px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
+/* Holdings row */
+.holds {{ display: flex; gap: 4px; margin-bottom: 4px; }}
+.hc {{
+    flex: 1; padding: 6px 10px;
+    background: #161b22; border: 1px solid #1f6feb33; border-radius: 6px;
 }}
-.hold-card {{
-    flex: 1;
-    min-width: 200px;
-    padding: 16px 20px;
-    background: #161b22;
-    border: 1px solid #1f6feb33;
-    border-radius: 8px;
-}}
-.hold-card .label {{ font-size: 10px; color: #58a6ff; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }}
-.hold-card .val {{ font-size: 20px; font-weight: 700; color: #e6edf3; font-family: 'SF Mono', ui-monospace, monospace; margin-top: 4px; }}
-.hold-card .detail {{ font-size: 11px; color: #484f58; margin-top: 4px; }}
+.hc .lb {{ font-size: 8px; color: #58a6ff; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }}
+.hc .vl {{ font-size: 14px; font-weight: 700; color: #e6edf3; font-family: 'SF Mono', ui-monospace, monospace; }}
+.hc .dt {{ font-size: 9px; color: #484f58; }}
 
-/* Flow */
-.flow {{
-    padding: 14px 20px;
-    background: #161b22;
-    border: 1px solid #21262d;
-    border-radius: 8px;
-    font-size: 11px; color: #484f58; line-height: 1.7;
-    margin-bottom: 16px;
-}}
-
-.foot {{ font-size: 9px; color: #30363d; margin-top: 12px; }}
-.foot code {{ font-size: 8px; color: #484f58; }}
-
-@media (max-width: 700px) {{
-    body {{ padding: 16px; }}
-    .summary {{ flex-direction: column; gap: 16px; }}
-    .asset-stats {{ flex-direction: column; gap: 8px; }}
-    .holdings {{ flex-direction: column; }}
-}}
+/* Footer */
+.foot {{ font-size: 8px; color: #30363d; line-height: 1.5; }}
+.foot code {{ font-size: 7px; color: #484f58; }}
 </style>
 </head>
 <body>
 
-<div class="header">
+<div class="top">
     <h1>DGMD Wallet Tracker</h1>
-    <div class="sub">5 wallets &middot; updated {now}</div>
+    <span class="sub">5 wallets &middot; {now}</span>
 </div>
 
-<div class="summary">
-    <div class="s-item">
-        <div class="s-label">ETH Spent</div>
-        <div class="s-val r">{grand_in:.2f}</div>
-        <div class="s-usd">{fmt_usd(grand_in_usd)}</div>
-    </div>
-    <div class="s-item">
-        <div class="s-label">ETH Received</div>
-        <div class="s-val g">{grand_out:.2f}</div>
-        <div class="s-usd">{fmt_usd(grand_out_usd)}</div>
-    </div>
-    <div class="s-item">
-        <div class="s-label">Realized P&L</div>
-        <div class="s-val {'g' if grand_net > 0 else 'r'}">{grand_net:+.2f}</div>
-        <div class="s-usd">{fmt_usd(abs(grand_net_usd))}</div>
-    </div>
-    <div class="s-item">
-        <div class="s-label">Adj. P&L (w/ holdings)</div>
-        <div class="s-val {'g' if adjusted_net > 0 else 'r'}">{adjusted_net:+.2f}</div>
-        <div class="s-usd">{fmt_usd(abs(adjusted_net_usd))}</div>
-    </div>
+<!-- Summary -->
+<div class="sum">
+    <div class="sc"><div class="lb">ETH Spent</div><div class="vl r">{grand_in:.2f}</div><div class="us">{fmt_usd(grand_in_usd)}</div></div>
+    <div class="sc"><div class="lb">ETH Received</div><div class="vl g">{grand_out:.2f}</div><div class="us">{fmt_usd(grand_out_usd)}</div></div>
+    <div class="sc"><div class="lb">Realized P&L</div><div class="vl {'g' if grand_net > 0 else 'r'}">{grand_net:+.2f}</div><div class="us">{fmt_usd(abs(grand_net_usd))}</div></div>
+    <div class="sc"><div class="lb">Adj. P&L (w/ holdings)</div><div class="vl {'g' if adjusted_net > 0 else 'r'}">{adjusted_net:+.2f}</div><div class="us">{fmt_usd(abs(adjusted_net_usd))}</div></div>
 </div>
+
+<!-- 2x2 Asset Grid -->
+<div class="grid">
 
 <!-- VIBESTR -->
 <div class="asset">
-    <div class="asset-head">
-        <span class="asset-name">VIBESTR</span>
-        <span class="asset-tag">ERC-20 Token</span>
-    </div>
-    <div class="asset-stats">
-        <div class="as"><div class="as-label">ETH In (Bought)</div><div class="as-val r">{t_vib_buy:.2f}</div><div class="as-sub">{fmt_usd(t_vib_buy_usd)}</div></div>
-        <div class="as"><div class="as-label">ETH Out (Sold)</div><div class="as-val g">{t_vib_sell:.2f}</div><div class="as-sub">{fmt_usd(t_vib_sell_usd)}</div></div>
-        <div class="as"><div class="as-label">OTC Sells</div><div class="as-val g">{OTC_ETH:.2f}</div><div class="as-sub">50 VIBESTR @ 0.2e</div></div>
-        <div class="as"><div class="as-label">Net</div><div class="as-val {'g' if vib_net > 0 else 'r'}">{vib_net:+.2f}</div><div class="as-sub">{fmt_usd(abs(vib_net_usd))}</div></div>
+    <div class="ah"><span class="nm">VIBESTR</span><span class="tg">ERC-20</span></div>
+    <div class="ast">
+        <div class="ai"><div class="al">ETH In</div><div class="av r">{t_vib_buy:.2f}</div><div class="au">{fmt_usd(t_vib_buy_usd)}</div></div>
+        <div class="ai"><div class="al">ETH Out</div><div class="av g">{t_vib_sell:.2f}</div><div class="au">{fmt_usd(t_vib_sell_usd)}</div></div>
+        <div class="ai"><div class="al">OTC</div><div class="av g">{OTC_ETH:.0f}</div><div class="au">50 @ 0.2e</div></div>
+        <div class="ai"><div class="al">Net</div><div class="av {'g' if vib_net > 0 else 'r'}">{vib_net:+.2f}</div></div>
     </div>
     <table>
-        <tr><th>Wallet</th><th>ETH In</th><th>ETH Out</th><th>Net</th></tr>
+        <tr><th>Wallet</th><th>In</th><th>Out</th><th>Net</th></tr>
         {vibestr_rows}
         <tr class="tot"><td class="wn">Total</td><td class="n r">{t_vib_buy:.2f}</td><td class="n g">{t_vib_sell:.2f}</td><td class="n {'g' if t_vib_sell - t_vib_buy > 0 else 'r'}">{t_vib_sell - t_vib_buy:+.2f}</td></tr>
     </table>
@@ -420,17 +353,14 @@ a {{ color: #58a6ff; text-decoration: none; }}
 
 <!-- GVC -->
 <div class="asset">
-    <div class="asset-head">
-        <span class="asset-name">GVC (Good Vibes Club)</span>
-        <span class="asset-tag">ERC-721 NFT</span>
-    </div>
-    <div class="asset-stats">
-        <div class="as"><div class="as-label">ETH In ({t_gvc_n_buy} bought)</div><div class="as-val r">{t_gvc_buy:.2f}</div><div class="as-sub">{fmt_usd(t_gvc_buy_usd)}</div></div>
-        <div class="as"><div class="as-label">ETH Out ({t_gvc_n_sold} sold)</div><div class="as-val g">{t_gvc_sell:.2f}</div><div class="as-sub">{fmt_usd(t_gvc_sell_usd)}</div></div>
-        <div class="as"><div class="as-label">Net</div><div class="as-val r">{gvc_net:+.2f}</div><div class="as-sub">{fmt_usd(abs(gvc_net_usd))}</div></div>
+    <div class="ah"><span class="nm">GVC</span><span class="tg">ERC-721 NFT</span></div>
+    <div class="ast">
+        <div class="ai"><div class="al">ETH In ({t_gvc_n_buy})</div><div class="av r">{t_gvc_buy:.2f}</div><div class="au">{fmt_usd(t_gvc_buy_usd)}</div></div>
+        <div class="ai"><div class="al">ETH Out ({t_gvc_n_sold})</div><div class="av g">{t_gvc_sell:.2f}</div><div class="au">{fmt_usd(t_gvc_sell_usd)}</div></div>
+        <div class="ai"><div class="al">Net</div><div class="av r">{gvc_net:+.2f}</div></div>
     </div>
     <table>
-        <tr><th>Wallet</th><th>ETH In</th><th>ETH Out</th><th>Net</th></tr>
+        <tr><th>Wallet</th><th>In</th><th>Out</th><th>Net</th></tr>
         {gvc_rows}
         <tr class="tot"><td class="wn">Total</td><td class="n r">{t_gvc_buy:.2f}</td><td class="n g">{t_gvc_sell:.2f}</td><td class="n r">{gvc_net:+.2f}</td></tr>
     </table>
@@ -438,13 +368,10 @@ a {{ color: #58a6ff; text-decoration: none; }}
 
 <!-- MOODS -->
 <div class="asset">
-    <div class="asset-head">
-        <span class="asset-name">MOODS</span>
-        <span class="asset-tag">ERC-721 NFT &middot; from Cryo Chamber</span>
-    </div>
-    <div class="asset-stats">
-        <div class="as"><div class="as-label">ETH In</div><div class="as-val" style="color:#484f58">0</div><div class="as-sub">Free from GVC Cryo</div></div>
-        <div class="as"><div class="as-label">ETH Out ({t_moods_n} sold)</div><div class="as-val g">{t_moods:.4f}</div><div class="as-sub">{fmt_usd(t_moods_usd)}</div></div>
+    <div class="ah"><span class="nm">MOODS</span><span class="tg">NFT &middot; Cryo Chamber</span></div>
+    <div class="ast">
+        <div class="ai"><div class="al">ETH In</div><div class="av" style="color:#484f58">0</div><div class="au">Free from Cryo</div></div>
+        <div class="ai"><div class="al">ETH Out ({t_moods_n} sold)</div><div class="av g">{t_moods:.4f}</div><div class="au">{fmt_usd(t_moods_usd)}</div></div>
     </div>
     <table>
         <tr><th>Wallet</th><th>ETH Out</th></tr>
@@ -455,13 +382,10 @@ a {{ color: #58a6ff; text-decoration: none; }}
 
 <!-- STOKED -->
 <div class="asset">
-    <div class="asset-head">
-        <span class="asset-name">STOKED</span>
-        <span class="asset-tag">Token &middot; from MOODS &rarr; ANVIL</span>
-    </div>
-    <div class="asset-stats">
-        <div class="as"><div class="as-label">ETH In</div><div class="as-val" style="color:#484f58">0</div><div class="as-sub">Free from ANVIL</div></div>
-        <div class="as"><div class="as-label">ETH Out ({t_stk_sells} sells)</div><div class="as-val g">{t_stk_eth:.2f}</div><div class="as-sub">{fmt_usd(t_stk_usd)}</div></div>
+    <div class="ah"><span class="nm">STOKED</span><span class="tg">Token &middot; ANVIL</span></div>
+    <div class="ast">
+        <div class="ai"><div class="al">ETH In</div><div class="av" style="color:#484f58">0</div><div class="au">Free from ANVIL</div></div>
+        <div class="ai"><div class="al">ETH Out ({t_stk_sells} sells)</div><div class="av g">{t_stk_eth:.2f}</div><div class="au">{fmt_usd(t_stk_usd)}</div></div>
     </div>
     <table>
         <tr><th>Wallet</th><th>ETH Out</th></tr>
@@ -470,34 +394,17 @@ a {{ color: #58a6ff; text-decoration: none; }}
     </table>
 </div>
 
-<!-- Still Holds -->
-<div class="holdings">
-    <div class="hold-card">
-        <div class="label">Still Holds: GVC</div>
-        <div class="val">{HOLDINGS_GVC} NFTs</div>
-        <div class="detail">{gvc_hold_eth:.2f}e &middot; {fmt_usd(gvc_hold_usd)}</div>
-        <div class="detail">73 DGMD22 (floor) + 105 vault (per-NFT offers)</div>
-    </div>
-    <div class="hold-card">
-        <div class="label">Still Holds: VIBESTR</div>
-        <div class="val">{HOLDINGS_VIBESTR:,.0f}</div>
-        <div class="detail">{vib_hold_eth:.2f}e &middot; {fmt_usd(vib_hold_usd)}</div>
-        <div class="detail">~10M tokens in DGMD22</div>
-    </div>
-</div>
+</div><!-- /grid -->
 
-<!-- Flow -->
-<div class="flow">
-    ETH &rarr; buy <span class="g">GVC</span> + <span class="g">VIBESTR</span>
-    &rarr; Cryo Chamber (1 GVC = 3 MOODS)
-    &rarr; some <span class="r">MOODS sold</span>, most MOODS &rarr; ANVIL &rarr; <span class="r">STOKED sold</span> for ETH.
-    No ETH was spent on STOKED or MOODS. OTC: 50 VIBESTR sold off-chain for {OTC_ETH:.0f}e.
+<!-- Holdings -->
+<div class="holds">
+    <div class="hc"><div class="lb">Holds: GVC</div><div class="vl">{HOLDINGS_GVC} NFTs</div><div class="dt">{gvc_hold_eth:.2f}e &middot; {fmt_usd(gvc_hold_usd)} &middot; 73 DGMD22 + 105 vault</div></div>
+    <div class="hc"><div class="lb">Holds: VIBESTR</div><div class="vl">{HOLDINGS_VIBESTR:,.0f}</div><div class="dt">{vib_hold_eth:.2f}e &middot; {fmt_usd(vib_hold_usd)} &middot; ~10M in DGMD22</div></div>
 </div>
 
 <div class="foot">
-    {' &middot; '.join(f'{wn}: <code>{WALLET_ADDRS[wn][:8]}...</code>' for wn in WALLETS)}
-    + vault: <code>0x8972e0...</code>
-    <br>Sources: Etherscan V2, Robinhood Chain, OpenSea, DeFiLlama
+    ETH &rarr; buy <span class="g">GVC</span> + <span class="g">VIBESTR</span> &rarr; Cryo (1 GVC = 3 MOODS) &rarr; <span class="r">MOODS/STOKED sold</span>. OTC: 50 VIBESTR for {OTC_ETH:.0f}e.
+    <br>{' &middot; '.join(f'{wn}: <code>{WALLET_ADDRS[wn][:8]}...</code>' for wn in WALLETS)} + vault: <code>0x8972e0...</code>
 </div>
 
 </body>
