@@ -185,12 +185,15 @@ def build_report():
         extra = ''
         if t == 'STOKED' and grand_usdg > 0:
             extra = f' <span class="usdg">+ ${grand_usdg:.2f} USDG</span>'
+        t_net = tt['sell_eth'] - tt['buy_eth']
+        net_class = 'sell' if t_net > 0 else 'buy'
         token_summary_rows += f'''<tr>
             <td class="token-name">{t}</td>
             <td class="num buy">{tt['buy_eth']:.4f}</td>
             <td class="num">{tt['buys']}</td>
             <td class="num sell">{tt['sell_eth']:.4f}{extra}</td>
             <td class="num">{tt['sells']}</td>
+            <td class="num {net_class}">{t_net:+.4f}</td>
         </tr>'''
 
     html = f'''<!DOCTYPE html>
@@ -525,6 +528,7 @@ tbody tr:hover {{ background: #0d1219; }}
                 <th class="num"># Buys</th>
                 <th class="num">ETH Out (Sells)</th>
                 <th class="num"># Sells</th>
+                <th class="num">NET ETH</th>
             </tr>
         </thead>
         <tbody>
@@ -535,6 +539,7 @@ tbody tr:hover {{ background: #0d1219; }}
                 <td class="num">0</td>
                 <td class="num sell">{OTC_ETH:.4f}</td>
                 <td class="num">{len(OTC_SALES)}</td>
+                <td class="num sell">+{OTC_ETH:.4f}</td>
             </tr>
             <tr class="total-row">
                 <td style="font-size:15px">GRAND TOTAL</td>
@@ -542,6 +547,7 @@ tbody tr:hover {{ background: #0d1219; }}
                 <td></td>
                 <td class="num sell" style="font-size:15px">{grand_out:.4f} ETH</td>
                 <td></td>
+                <td class="num {'sell' if net > 0 else 'buy'}" style="font-size:15px">{net:+.4f} ETH</td>
             </tr>
         </tbody>
     </table>
