@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Build the final HTML report from all collected data."""
+"""Build a clean infographic-style HTML report from all collected data."""
 
 import json
 import os
+from datetime import datetime
 
 WALLETS = ['IKZ1', 'DGMD22', 'EraOfVibes', 'Extra25', 'InvestmentFund1']
 WALLET_ADDRS = {
@@ -12,13 +13,6 @@ WALLET_ADDRS = {
     'Extra25': '0x83e574af1bf5813f8552d434b213548e6bd4f35d',
     'InvestmentFund1': '0xa1862a515fe0d692392fd1e51d7aeab674a6864b',
 }
-WALLET_SHORT = {
-    'IKZ1': 'IKZ1',
-    'DGMD22': 'DGMD22',
-    'EraOfVibes': 'EraOfVibes',
-    'Extra25': 'Extra25',
-    'InvestmentFund1': 'InvFund1',
-}
 
 OTC_SALES = [
     {'buyer': 'KillerNiz', 'amount': 10, 'price': 0.2, 'total': 2.0, 'token': 'VIBESTR'},
@@ -26,15 +20,54 @@ OTC_SALES = [
 ]
 OTC_ETH = sum(s['total'] for s in OTC_SALES)
 
+# STOKED data (Robinhood chain - can't auto-fetch, Cloudflare blocked)
+STOKED_DATA = [
+    {'wallet_name': 'IKZ1', 'value_eth': 0.3866, 'amount': 3300000, 'value_usd': 0},
+    {'wallet_name': 'IKZ1', 'value_eth': 0.4129, 'amount': 3300000, 'value_usd': 0},
+    {'wallet_name': 'IKZ1', 'value_eth': 0.2123, 'amount': 1600000, 'value_usd': 0},
+    {'wallet_name': 'IKZ1', 'value_eth': 0.2736, 'amount': 2000000, 'value_usd': 0},
+    {'wallet_name': 'IKZ1', 'value_eth': 0.3439, 'amount': 2600000, 'value_usd': 0},
+    {'wallet_name': 'IKZ1', 'value_eth': 0.2815, 'amount': 2000000, 'value_usd': 0},
+    {'wallet_name': 'DGMD22', 'value_eth': 0.2901, 'amount': 2800000, 'value_usd': 0},
+    {'wallet_name': 'DGMD22', 'value_eth': 0.1502, 'amount': 1400000, 'value_usd': 0},
+    {'wallet_name': 'DGMD22', 'value_eth': 0.1946, 'amount': 1700000, 'value_usd': 0},
+    {'wallet_name': 'DGMD22', 'value_eth': 0.2493, 'amount': 2200000, 'value_usd': 0},
+    {'wallet_name': 'DGMD22', 'value_eth': 0, 'amount': 1400000, 'value_usd': 263.89},
+    {'wallet_name': 'EraOfVibes', 'value_eth': 0.2114, 'amount': 1500000, 'value_usd': 0},
+    {'wallet_name': 'EraOfVibes', 'value_eth': 0.2184, 'amount': 1500000, 'value_usd': 0},
+    {'wallet_name': 'EraOfVibes', 'value_eth': 0.2351, 'amount': 1600000, 'value_usd': 0},
+    {'wallet_name': 'EraOfVibes', 'value_eth': 0.1717, 'amount': 1100000, 'value_usd': 0},
+    {'wallet_name': 'EraOfVibes', 'value_eth': 0.2118, 'amount': 1400000, 'value_usd': 0},
+    {'wallet_name': 'EraOfVibes', 'value_eth': 0.2666, 'amount': 1800000, 'value_usd': 0},
+    {'wallet_name': 'Extra25', 'value_eth': 0.6373, 'amount': 4600000, 'value_usd': 0},
+    {'wallet_name': 'Extra25', 'value_eth': 0.1623, 'amount': 1100000, 'value_usd': 0},
+    {'wallet_name': 'Extra25', 'value_eth': 0.2171, 'amount': 1400000, 'value_usd': 0},
+    {'wallet_name': 'Extra25', 'value_eth': 0.2940, 'amount': 1800000, 'value_usd': 0},
+    {'wallet_name': 'InvestmentFund1', 'value_eth': 0.7757, 'amount': 4000000, 'value_usd': 0},
+    {'wallet_name': 'InvestmentFund1', 'value_eth': 0.7943, 'amount': 4000000, 'value_usd': 0},
+    {'wallet_name': 'InvestmentFund1', 'value_eth': 0.9677, 'amount': 4500000, 'value_usd': 0},
+    {'wallet_name': 'InvestmentFund1', 'value_eth': 0.7856, 'amount': 3100000, 'value_usd': 0},
+]
+
+# MOODS data (OpenSea, Robinhood chain - scraped manually)
+MOODS_DATA = [
+    {'wallet_name': 'DGMD22', 'value_eth': 0.15, 'type': 'sell'},
+    {'wallet_name': 'DGMD22', 'value_eth': 0.0324, 'type': 'sell'},
+    {'wallet_name': 'DGMD22', 'value_eth': 0.0322, 'type': 'sell'},
+    {'wallet_name': 'DGMD22', 'value_eth': 0.0322, 'type': 'sell'},
+    {'wallet_name': 'DGMD22', 'value_eth': 0.0322, 'type': 'sell'},
+    {'wallet_name': 'DGMD22', 'value_eth': 0.06, 'type': 'sell'},
+    {'wallet_name': 'DGMD22', 'value_eth': 0.06, 'type': 'sell'},
+    {'wallet_name': 'DGMD22', 'value_eth': 0.08, 'type': 'sell'},
+    {'wallet_name': 'DGMD22', 'value_eth': 0.20, 'type': 'sell'},
+    {'wallet_name': 'DGMD22', 'value_eth': 0.15, 'type': 'sell'},
+]
+
 
 def load_data():
     with open('data/sells_data.json') as f:
         vibestr_gvc = json.load(f)
-    with open('data/stoked_data.json') as f:
-        stoked = json.load(f)
-    with open('data/moods_data.json') as f:
-        moods = json.load(f)
-    return vibestr_gvc, stoked, moods
+    return vibestr_gvc, STOKED_DATA, MOODS_DATA
 
 
 def fmt_amt(a):
@@ -47,540 +80,320 @@ def fmt_amt(a):
 
 def build_report():
     vibestr_gvc, stoked, moods = load_data()
+    now = datetime.utcnow().strftime('%b %d, %Y %H:%M UTC')
 
-    # Per-wallet data
-    wallet_data = {}
+    # Compute all stats
+    stats = {}
     for wn in WALLETS:
-        addr = WALLET_ADDRS[wn]
-        short = WALLET_SHORT[wn]
-        addr_short = addr[:6] + '...' + addr[-4:]
-
-        # STOKED individual sells
+        # STOKED
         sd = [r for r in stoked if r.get('wallet_name') == wn]
-        stoked_eth_sells = [r for r in sd if r['value_eth'] > 0]
-        stoked_usdg_sells = [r for r in sd if r['value_eth'] == 0 and r.get('value_usd', 0) > 0]
-        stoked_eth_total = sum(r['value_eth'] for r in stoked_eth_sells)
-        stoked_usdg_total = sum(r.get('value_usd', 0) for r in stoked_usdg_sells)
-        stoked_amt_total = sum(r['amount'] for r in stoked_eth_sells + stoked_usdg_sells)
+        stk_eth = sum(r['value_eth'] for r in sd if r['value_eth'] > 0)
+        stk_usdg = sum(r.get('value_usd', 0) for r in sd if r['value_eth'] == 0 and r.get('value_usd', 0) > 0)
+        stk_sells = len([r for r in sd if r['value_eth'] > 0 or r.get('value_usd', 0) > 0])
 
-        # VIBESTR individual buys and sells
+        # VIBESTR
         vd = [r for r in vibestr_gvc if r['token'] == 'VIBESTR' and r.get('wallet_name') == wn]
-        vib_buys = sorted([r for r in vd if r['type'] == 'buy' and r['value_eth'] > 0], key=lambda x: x['value_eth'], reverse=True)
-        vib_sells = sorted([r for r in vd if r['type'] == 'sell' and r['value_eth'] > 0], key=lambda x: x['value_eth'], reverse=True)
-        vib_buy_eth = sum(r['value_eth'] for r in vib_buys)
-        vib_sell_eth = sum(r['value_eth'] for r in vib_sells)
-        vib_buy_amt = sum(r['amount'] for r in vib_buys)
-        vib_sell_amt = sum(r['amount'] for r in vib_sells)
+        vib_buy = sum(r['value_eth'] for r in vd if r['type'] == 'buy' and r['value_eth'] > 0)
+        vib_sell = sum(r['value_eth'] for r in vd if r['type'] == 'sell' and r['value_eth'] > 0)
+        vib_n_buy = len([r for r in vd if r['type'] == 'buy' and r['value_eth'] > 0])
+        vib_n_sell = len([r for r in vd if r['type'] == 'sell' and r['value_eth'] > 0])
 
-        # GVC totals only
+        # GVC
         gd = [r for r in vibestr_gvc if r['token'] == 'GVC' and r.get('wallet_name') == wn]
-        gvc_buys = [r for r in gd if r['type'] == 'buy' and r['value_eth'] > 0]
-        gvc_sells = [r for r in gd if r['type'] == 'sell' and r['value_eth'] > 0]
-        gvc_buy_eth = sum(r['value_eth'] for r in gvc_buys)
-        gvc_sell_eth = sum(r['value_eth'] for r in gvc_sells)
-        gvc_nfts_bought = len(gvc_buys)
-        gvc_nfts_sold = sum(int(r['amount']) for r in gvc_sells)
+        gvc_buy = sum(r['value_eth'] for r in gd if r['type'] == 'buy' and r['value_eth'] > 0)
+        gvc_sell = sum(r['value_eth'] for r in gd if r['type'] == 'sell' and r['value_eth'] > 0)
+        gvc_n_buy = len([r for r in gd if r['type'] == 'buy' and r['value_eth'] > 0])
+        gvc_n_sold = sum(int(r['amount']) for r in gd if r['type'] == 'sell' and r['value_eth'] > 0)
 
-        # MOODS totals only
+        # MOODS
         md = [r for r in moods if r.get('wallet_name') == wn and r['type'] == 'sell']
-        moods_sell_eth = sum(r['value_eth'] for r in md)
-        moods_count = len(md)
+        moods_eth = sum(r['value_eth'] for r in md)
+        moods_n = len(md)
 
-        # Wallet total
-        w_in = vib_buy_eth + gvc_buy_eth
-        w_out = vib_sell_eth + gvc_sell_eth + stoked_eth_total + moods_sell_eth
-
-        wallet_data[wn] = {
-            'addr': addr, 'addr_short': addr_short, 'short': short,
-            'stoked_eth_sells': stoked_eth_sells, 'stoked_usdg_sells': stoked_usdg_sells,
-            'stoked_eth_total': stoked_eth_total, 'stoked_usdg_total': stoked_usdg_total,
-            'stoked_amt_total': stoked_amt_total,
-            'vib_buys': vib_buys, 'vib_sells': vib_sells,
-            'vib_buy_eth': vib_buy_eth, 'vib_sell_eth': vib_sell_eth,
-            'vib_buy_amt': vib_buy_amt, 'vib_sell_amt': vib_sell_amt,
-            'gvc_buy_eth': gvc_buy_eth, 'gvc_sell_eth': gvc_sell_eth,
-            'gvc_nfts_bought': gvc_nfts_bought, 'gvc_nfts_sold': gvc_nfts_sold,
-            'moods_sell_eth': moods_sell_eth, 'moods_count': moods_count,
-            'w_in': w_in, 'w_out': w_out,
+        stats[wn] = {
+            'stk_eth': stk_eth, 'stk_usdg': stk_usdg, 'stk_sells': stk_sells,
+            'vib_buy': vib_buy, 'vib_sell': vib_sell, 'vib_n_buy': vib_n_buy, 'vib_n_sell': vib_n_sell,
+            'gvc_buy': gvc_buy, 'gvc_sell': gvc_sell, 'gvc_n_buy': gvc_n_buy, 'gvc_n_sold': gvc_n_sold,
+            'moods_eth': moods_eth, 'moods_n': moods_n,
         }
 
-    # Grand totals
-    total_stoked_eth = sum(w['stoked_eth_total'] for w in wallet_data.values())
-    total_stoked_usdg = sum(w['stoked_usdg_total'] for w in wallet_data.values())
-    total_stoked_sells = sum(len(w['stoked_eth_sells']) + len(w['stoked_usdg_sells']) for w in wallet_data.values())
-    total_vib_buy_eth = sum(w['vib_buy_eth'] for w in wallet_data.values())
-    total_vib_sell_eth = sum(w['vib_sell_eth'] for w in wallet_data.values())
-    total_vib_buys = sum(len(w['vib_buys']) for w in wallet_data.values())
-    total_vib_sells = sum(len(w['vib_sells']) for w in wallet_data.values())
-    total_vib_sell_amt = sum(w['vib_sell_amt'] for w in wallet_data.values())
-    total_gvc_buy_eth = sum(w['gvc_buy_eth'] for w in wallet_data.values())
-    total_gvc_sell_eth = sum(w['gvc_sell_eth'] for w in wallet_data.values())
-    total_gvc_bought = sum(w['gvc_nfts_bought'] for w in wallet_data.values())
-    total_gvc_sold = sum(w['gvc_nfts_sold'] for w in wallet_data.values())
-    total_moods_eth = sum(w['moods_sell_eth'] for w in wallet_data.values())
-    total_moods_count = sum(w['moods_count'] for w in wallet_data.values())
+    # Totals
+    t_stk_eth = sum(s['stk_eth'] for s in stats.values())
+    t_stk_usdg = sum(s['stk_usdg'] for s in stats.values())
+    t_vib_buy = sum(s['vib_buy'] for s in stats.values())
+    t_vib_sell = sum(s['vib_sell'] for s in stats.values())
+    t_gvc_buy = sum(s['gvc_buy'] for s in stats.values())
+    t_gvc_sell = sum(s['gvc_sell'] for s in stats.values())
+    t_moods = sum(s['moods_eth'] for s in stats.values())
 
-    grand_in = total_vib_buy_eth + total_gvc_buy_eth
-    grand_out = total_vib_sell_eth + total_gvc_sell_eth + total_stoked_eth + total_moods_eth + OTC_ETH
+    grand_in = t_vib_buy + t_gvc_buy
+    grand_out = t_vib_sell + t_gvc_sell + t_stk_eth + t_moods + OTC_ETH
     grand_net = grand_out - grand_in
 
-    # Build wallet columns
-    columns_html = ''
+    # Wallet rows for the table
+    wallet_rows = ''
     for wn in WALLETS:
-        w = wallet_data[wn]
-        w_total = w['stoked_eth_total'] + w['vib_sell_eth'] + w['gvc_sell_eth'] + w['moods_sell_eth']
-        w_net = w['w_out'] - w['w_in']
+        s = stats[wn]
+        addr = WALLET_ADDRS[wn][:6] + '...' + WALLET_ADDRS[wn][-4:]
+        w_in = s['vib_buy'] + s['gvc_buy']
+        w_out = s['vib_sell'] + s['gvc_sell'] + s['stk_eth'] + s['moods_eth']
+        w_net = w_out - w_in
 
-        # STOKED rows
-        stoked_rows = ''
-        if w['stoked_eth_sells'] or w['stoked_usdg_sells']:
-            for r in w['stoked_eth_sells']:
-                stoked_rows += f'<tr><td>{fmt_amt(r["amount"])}</td><td class="num">{r["value_eth"]:.2f}</td></tr>\n'
-            for r in w['stoked_usdg_sells']:
-                stoked_rows += f'<tr><td>{fmt_amt(r["amount"])}</td><td class="num usdg">${r["value_usd"]:.2f}</td></tr>\n'
-            usdg_sub = f' <span class="usdg">+ ${w["stoked_usdg_total"]:.2f}</span>' if w['stoked_usdg_total'] > 0 else ''
-            stoked_section = f'''
-            <div class="token-section">
-                <div class="token-header">STOKED</div>
-                <table><tbody>{stoked_rows}</tbody></table>
-                <div class="sub-total">Sub: {fmt_amt(w["stoked_amt_total"])} &middot; <span class="sell">{w["stoked_eth_total"]:.2f} ETH</span>{usdg_sub}</div>
-            </div>'''
-        else:
-            stoked_section = '''
-            <div class="token-section">
-                <div class="token-header">STOKED</div>
-                <div class="no-sells">no sells</div>
-            </div>'''
+        usdg_note = f'<span class="usdg-sm">+${s["stk_usdg"]:.0f}</span>' if s['stk_usdg'] > 0 else ''
 
-        # VIBESTR section
-        vib_buy_rows = ''
-        for r in w['vib_buys']:
-            vib_buy_rows += f'<tr><td>{fmt_amt(r["amount"])}</td><td class="num buy">{r["value_eth"]:.2f}</td></tr>\n'
-        vib_sell_rows = ''
-        for r in w['vib_sells']:
-            vib_sell_rows += f'<tr><td>{fmt_amt(r["amount"])}</td><td class="num sell">{r["value_eth"]:.2f}</td></tr>\n'
+        wallet_rows += f'''<tr>
+            <td class="wallet-name">{wn}<span class="addr">{addr}</span></td>
+            <td class="num buy">{s['vib_buy']:.2f}</td>
+            <td class="num sell">{s['vib_sell']:.2f}</td>
+            <td class="num buy">{s['gvc_buy']:.2f}</td>
+            <td class="num sell">{s['gvc_sell']:.2f}</td>
+            <td class="num sell">{s['stk_eth']:.2f}{usdg_note}</td>
+            <td class="num sell">{s['moods_eth']:.2f}</td>
+            <td class="num {'profit' if w_net > 0 else 'loss'}">{w_net:+.2f}</td>
+        </tr>'''
 
-        if w['vib_buys'] or w['vib_sells']:
-            vib_net = w['vib_sell_eth'] - w['vib_buy_eth']
-            vib_net_class = 'sell' if vib_net > 0 else 'buy'
-            buys_block = ''
-            if w['vib_buys']:
-                buys_block = f'''<div class="tx-group">
-                    <div class="tx-label">Buys ({len(w["vib_buys"])})</div>
-                    <table><tbody>{vib_buy_rows}</tbody></table>
-                </div>'''
-            sells_block = ''
-            if w['vib_sells']:
-                sells_block = f'''<div class="tx-group">
-                    <div class="tx-label">Sells ({len(w["vib_sells"])})</div>
-                    <table><tbody>{vib_sell_rows}</tbody></table>
-                </div>'''
-            vibestr_section = f'''
-            <div class="token-section">
-                <div class="token-header">VIBESTR</div>
-                {buys_block}
-                {sells_block}
-                <div class="sub-total">In: <span class="buy">{w["vib_buy_eth"]:.2f}</span> &middot; Out: <span class="sell">{w["vib_sell_eth"]:.2f}</span> &middot; Net: <span class="{vib_net_class}">{vib_net:+.2f}</span></div>
-            </div>'''
-        else:
-            vibestr_section = '''
-            <div class="token-section">
-                <div class="token-header">VIBESTR</div>
-                <div class="no-sells">no activity</div>
-            </div>'''
-
-        # GVC summary
-        if w['gvc_buy_eth'] > 0 or w['gvc_sell_eth'] > 0:
-            gvc_net = w['gvc_sell_eth'] - w['gvc_buy_eth']
-            gvc_net_class = 'sell' if gvc_net > 0 else 'buy'
-            gvc_section = f'''
-            <div class="token-section">
-                <div class="token-header">GVC <span class="badge">NFT</span></div>
-                <div class="summary-line">Bought: {w["gvc_nfts_bought"]} NFTs &middot; <span class="buy">{w["gvc_buy_eth"]:.2f} ETH</span></div>
-                <div class="summary-line">Sold: {w["gvc_nfts_sold"]} NFTs &middot; <span class="sell">{w["gvc_sell_eth"]:.2f} ETH</span></div>
-                <div class="sub-total">Net: <span class="{gvc_net_class}">{gvc_net:+.2f} ETH</span></div>
-            </div>'''
-        else:
-            gvc_section = '''
-            <div class="token-section">
-                <div class="token-header">GVC <span class="badge">NFT</span></div>
-                <div class="no-sells">no activity</div>
-            </div>'''
-
-        # MOODS summary
-        if w['moods_sell_eth'] > 0:
-            moods_section = f'''
-            <div class="token-section">
-                <div class="token-header">MOODS <span class="badge">NFT</span></div>
-                <div class="summary-line">Sold: {w["moods_count"]} NFTs &middot; <span class="sell">{w["moods_sell_eth"]:.4f} ETH</span></div>
-            </div>'''
-        else:
-            moods_section = ''
-
-        columns_html += f'''
-        <div class="wallet-col">
-            <div class="col-header">
-                <div class="col-name">{w["short"]}</div>
-                <div class="col-addr">({w["addr_short"]})</div>
-                <div class="col-total"><span class="sell">{w_total:.2f} ETH</span> out</div>
-            </div>
-            {stoked_section}
-            {vibestr_section}
-            {gvc_section}
-            {moods_section}
-            <div class="wallet-total-bar">
-                <span>ETH In: <span class="buy">{w["w_in"]:.2f}</span></span>
-                <span>ETH Out: <span class="sell">{w["w_out"]:.2f}</span></span>
-                <span>Net: <span class="{'sell' if w_net > 0 else 'buy'}">{w_net:+.2f}</span></span>
-            </div>
-        </div>'''
-
-    # Summary cards
-    vib_net = total_vib_sell_eth - total_vib_buy_eth + OTC_ETH
-    gvc_net = total_gvc_sell_eth - total_gvc_buy_eth
+    # Token P&L bars (visual proportional bars)
+    vib_net = t_vib_sell + OTC_ETH - t_vib_buy
+    gvc_net = t_gvc_sell - t_gvc_buy
 
     html = f'''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DGMD Wallet Activity Report</title>
+<title>DGMD Wallet Tracker</title>
 <style>
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
 body {{
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: #0a0e14;
     color: #c9d1d9;
-    padding: 20px;
-    line-height: 1.4;
+    padding: 24px 28px;
+    max-width: 1200px;
+    margin: 0 auto;
 }}
-h1 {{
-    color: #fff;
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    letter-spacing: -0.5px;
-}}
-.subtitle {{ color: #6e7681; font-size: 12px; margin-bottom: 20px; }}
 
-.sell {{ color: #f85149; }}
-.buy {{ color: #3fb950; }}
-.usdg {{ color: #d2a8ff; }}
-.num {{ text-align: right; font-variant-numeric: tabular-nums; font-family: 'SF Mono', 'Fira Code', monospace; }}
+/* Header */
+.hdr {{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }}
+h1 {{ color: #fff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }}
+.ts {{ color: #3d4450; font-size: 10px; }}
 
-/* Wallet columns */
-.columns {{
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    margin-bottom: 24px;
-    overflow-x: auto;
-}}
-.wallet-col {{
+/* Hero cards row */
+.hero {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }}
+.hero-card {{
     background: #111820;
     border: 1px solid #1c2432;
     border-radius: 10px;
-    overflow: hidden;
-    min-width: 200px;
-}}
-.col-header {{
-    padding: 14px 12px 10px;
-    border-bottom: 2px solid #1c2432;
-}}
-.col-name {{
-    color: #fff;
-    font-size: 15px;
-    font-weight: 700;
-}}
-.col-addr {{
-    color: #3d4450;
-    font-size: 9px;
-    font-family: 'SF Mono', monospace;
-    margin-top: 2px;
-}}
-.col-total {{
-    font-size: 20px;
-    font-weight: 700;
-    margin-top: 6px;
-    font-family: 'SF Mono', monospace;
-}}
-
-/* Token sections */
-.token-section {{
-    padding: 10px 12px;
-    border-bottom: 1px solid #1c2432;
-}}
-.token-header {{
-    color: #58a6ff;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 6px;
-}}
-.token-header .badge {{
-    background: #1c2432;
-    color: #6e7681;
-    font-size: 9px;
-    padding: 1px 5px;
-    border-radius: 3px;
-    letter-spacing: 0;
-    text-transform: uppercase;
-    vertical-align: middle;
-}}
-.token-section table {{
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-}}
-.token-section td {{
-    padding: 2px 0;
-    font-family: 'SF Mono', monospace;
-    font-size: 12px;
-}}
-.token-section td:first-child {{
-    color: #8b949e;
-}}
-.token-section td:last-child {{
-    text-align: right;
-    font-weight: 600;
-}}
-.tx-group {{ margin-bottom: 4px; }}
-.tx-label {{
-    color: #6e7681;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 2px;
-    margin-top: 4px;
-}}
-.sub-total {{
-    margin-top: 6px;
-    padding-top: 6px;
-    border-top: 1px solid #1c2432;
-    font-size: 11px;
-    font-weight: 700;
-    font-family: 'SF Mono', monospace;
-}}
-.summary-line {{
-    font-size: 12px;
-    font-family: 'SF Mono', monospace;
-    padding: 2px 0;
-}}
-.no-sells {{
-    color: #3d4450;
-    font-size: 11px;
-    font-style: italic;
-    padding: 4px 0;
-}}
-
-.wallet-total-bar {{
-    padding: 10px 12px;
-    background: #0d1219;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    font-size: 11px;
-    font-weight: 700;
-    font-family: 'SF Mono', monospace;
-}}
-
-/* Summary cards at bottom */
-.summary-cards {{
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-}}
-.summary-card {{
-    background: #111820;
-    border: 1px solid #1c2432;
-    border-radius: 10px;
-    padding: 16px;
-    overflow: hidden;
+    padding: 16px 18px;
     position: relative;
+    overflow: hidden;
 }}
-.summary-card::before {{
+.hero-card::before {{
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
 }}
-.summary-card.sc-stoked::before {{ background: #f0883e; }}
-.summary-card.sc-vibestr::before {{ background: #3fb950; }}
-.summary-card.sc-gvc::before {{ background: #58a6ff; }}
-.summary-card.sc-grand::before {{ background: linear-gradient(90deg, #3fb950, #f85149); }}
-.sc-title {{
-    font-size: 12px;
-    font-weight: 700;
-    color: #8b949e;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-}}
-.sc-subtitle {{
-    font-size: 10px;
-    color: #484f58;
-    margin-bottom: 8px;
-}}
-.sc-big {{
-    font-size: 28px;
-    font-weight: 800;
-    font-family: 'SF Mono', monospace;
-    letter-spacing: -1px;
-}}
-.sc-detail {{
-    font-size: 11px;
-    color: #6e7681;
-    margin-top: 4px;
-    font-family: 'SF Mono', monospace;
-}}
+.hc-in::before {{ background: #3fb950; }}
+.hc-out::before {{ background: #f85149; }}
+.hc-net::before {{ background: #58a6ff; }}
+.hc-label {{ color: #6e7681; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }}
+.hc-value {{ font-size: 32px; font-weight: 800; margin-top: 4px; letter-spacing: -1px; font-family: 'SF Mono', monospace; }}
+.hc-sub {{ color: #3d4450; font-size: 10px; margin-top: 2px; }}
 
-/* OTC section */
-.otc-section {{
+/* Token breakdown cards */
+.tokens {{ display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }}
+.tk {{
     background: #111820;
     border: 1px solid #1c2432;
     border-radius: 10px;
-    padding: 16px;
+    padding: 14px;
+    text-align: center;
+}}
+.tk-name {{ color: #58a6ff; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }}
+.tk-big {{ font-size: 20px; font-weight: 800; font-family: 'SF Mono', monospace; letter-spacing: -0.5px; }}
+.tk-row {{ display: flex; justify-content: space-between; font-size: 11px; margin-top: 4px; font-family: 'SF Mono', monospace; }}
+.tk-detail {{ color: #484f58; font-size: 10px; margin-top: 4px; }}
+.tk-net {{ font-size: 13px; font-weight: 700; margin-top: 6px; font-family: 'SF Mono', monospace; }}
+
+/* Wallet table */
+.tbl-wrap {{
+    background: #111820;
+    border: 1px solid #1c2432;
+    border-radius: 10px;
+    overflow: hidden;
     margin-bottom: 20px;
 }}
-.otc-section h3 {{
-    color: #d2a8ff;
-    font-size: 13px;
-    font-weight: 700;
+.tbl-title {{ padding: 12px 16px 0; color: #fff; font-size: 13px; font-weight: 700; }}
+table {{ width: 100%; border-collapse: collapse; font-size: 12px; }}
+th {{
+    text-align: right;
+    color: #3d4450;
+    font-weight: 600;
+    padding: 8px 12px;
+    font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 8px;
+    border-bottom: 1px solid #1c2432;
+    white-space: nowrap;
 }}
-.otc-section table {{
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-    max-width: 500px;
-}}
-.otc-section th {{
-    text-align: left;
-    color: #484f58;
-    font-weight: 600;
-    padding: 4px 8px;
-    font-size: 10px;
-    text-transform: uppercase;
-}}
-.otc-section td {{
-    padding: 4px 8px;
+th:first-child {{ text-align: left; }}
+td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
+.num {{
+    text-align: right;
+    font-variant-numeric: tabular-nums;
     font-family: 'SF Mono', monospace;
-}}
-
-/* Token flow note */
-.flow-note {{
-    background: #0d1219;
-    border-left: 3px solid #d29922;
-    padding: 10px 16px;
     font-size: 12px;
-    color: #6e7681;
-    border-radius: 0 8px 8px 0;
-    margin-bottom: 20px;
 }}
-.flow-note strong {{ color: #d29922; }}
+.wallet-name {{
+    font-weight: 600;
+    color: #e6edf3;
+    white-space: nowrap;
+}}
+.addr {{ color: #3d4450; font-size: 9px; font-family: 'SF Mono', monospace; margin-left: 6px; }}
+.total-row {{ background: #0d1219; font-weight: 700; }}
+.total-row td {{ border-top: 2px solid #1c2432; padding-top: 10px; padding-bottom: 10px; }}
+
+/* Colors */
+.buy {{ color: #3fb950; }}
+.sell {{ color: #f85149; }}
+.profit {{ color: #f85149; }}
+.loss {{ color: #3fb950; }}
+.usdg {{ color: #d2a8ff; }}
+.usdg-sm {{ color: #d2a8ff; font-size: 9px; margin-left: 3px; }}
+
+/* Flow note */
+.flow {{
+    background: #111820;
+    border: 1px solid #1c2432;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 11px;
+    color: #484f58;
+    margin-bottom: 16px;
+    line-height: 1.6;
+}}
+.flow strong {{ color: #6e7681; }}
+.flow .arrow {{ color: #3d4450; }}
 
 /* Footer */
-.footer {{
-    font-size: 10px;
-    color: #3d4450;
-    margin-top: 24px;
-    padding-top: 12px;
-    border-top: 1px solid #1c2432;
-}}
-.footer code {{
-    background: #111820;
-    padding: 1px 4px;
-    border-radius: 3px;
-    font-size: 9px;
-    color: #484f58;
-}}
+.foot {{ font-size: 9px; color: #2d333b; padding-top: 10px; border-top: 1px solid #1c2432; }}
+.foot code {{ font-size: 8px; color: #3d4450; }}
 
-@media (max-width: 1100px) {{
-    .columns {{ grid-template-columns: repeat(3, 1fr); }}
-    .summary-cards {{ grid-template-columns: repeat(2, 1fr); }}
+@media (max-width: 900px) {{
+    .tokens {{ grid-template-columns: repeat(3, 1fr); }}
+    .hero {{ grid-template-columns: 1fr; }}
+    body {{ padding: 14px; }}
 }}
-@media (max-width: 700px) {{
-    .columns {{ grid-template-columns: 1fr 1fr; }}
-    .summary-cards {{ grid-template-columns: 1fr; }}
-    body {{ padding: 12px; }}
-}}
-@media (max-width: 450px) {{
-    .columns {{ grid-template-columns: 1fr; }}
+@media (max-width: 600px) {{
+    .tokens {{ grid-template-columns: 1fr 1fr; }}
+    table {{ font-size: 10px; }}
+    th, td {{ padding: 6px 8px; }}
 }}
 </style>
 </head>
 <body>
 
-<h1>DGMD STOKED + VIBESTR + GVC: All Sells</h1>
-<p class="subtitle">All-time activity across 5 tracked wallets. STOKED &amp; VIBESTR individual transactions shown. GVC &amp; MOODS totals only.</p>
-
-<div class="columns">
-{columns_html}
+<div class="hdr">
+    <h1>DGMD Wallet Tracker</h1>
+    <span class="ts">Updated {now} &middot; 5 wallets tracked</span>
 </div>
 
-<!-- OTC Sales -->
-<div class="otc-section">
-    <h3>OTC (Off-Chain) Sales</h3>
+<!-- Hero cards -->
+<div class="hero">
+    <div class="hero-card hc-in">
+        <div class="hc-label">Total ETH Spent (Buys)</div>
+        <div class="hc-value buy">{grand_in:.2f} ETH</div>
+        <div class="hc-sub">VIBESTR + GVC purchases across all wallets</div>
+    </div>
+    <div class="hero-card hc-out">
+        <div class="hc-label">Total ETH Received (Sells)</div>
+        <div class="hc-value sell">{grand_out:.2f} ETH</div>
+        <div class="hc-sub">All sells + OTC + ${t_stk_usdg:.0f} USDG from STOKED</div>
+    </div>
+    <div class="hero-card hc-net">
+        <div class="hc-label">Net P&L</div>
+        <div class="hc-value {'sell' if grand_net > 0 else 'buy'}">{grand_net:+.2f} ETH</div>
+        <div class="hc-sub">{'Spent more than received' if grand_net < 0 else 'Received more than spent'}</div>
+    </div>
+</div>
+
+<!-- Token breakdown -->
+<div class="tokens">
+    <div class="tk">
+        <div class="tk-name">VIBESTR</div>
+        <div class="tk-row"><span class="buy">In: {t_vib_buy:.2f}</span><span class="sell">Out: {t_vib_sell:.2f}</span></div>
+        <div class="tk-net {'sell' if vib_net > 0 else 'buy'}">Net: {vib_net:+.2f}</div>
+        <div class="tk-detail">{t_vib_sell + OTC_ETH:.2f} total w/ OTC</div>
+    </div>
+    <div class="tk">
+        <div class="tk-name">GVC</div>
+        <div class="tk-row"><span class="buy">In: {t_gvc_buy:.2f}</span><span class="sell">Out: {t_gvc_sell:.2f}</span></div>
+        <div class="tk-net {'sell' if gvc_net > 0 else 'buy'}">Net: {gvc_net:+.2f}</div>
+        <div class="tk-detail">{sum(s['gvc_n_buy'] for s in stats.values())} bought / {sum(s['gvc_n_sold'] for s in stats.values())} sold</div>
+    </div>
+    <div class="tk">
+        <div class="tk-name">STOKED</div>
+        <div class="tk-big sell">{t_stk_eth:.2f}</div>
+        <div class="tk-detail">{sum(s['stk_sells'] for s in stats.values())} sells &middot; <span class="usdg">+${t_stk_usdg:.0f} USDG</span></div>
+    </div>
+    <div class="tk">
+        <div class="tk-name">MOODS</div>
+        <div class="tk-big sell">{t_moods:.4f}</div>
+        <div class="tk-detail">{sum(s['moods_n'] for s in stats.values())} NFTs sold on OpenSea</div>
+    </div>
+    <div class="tk">
+        <div class="tk-name">OTC</div>
+        <div class="tk-big sell">{OTC_ETH:.2f}</div>
+        <div class="tk-detail">50 VIBESTR @ 0.2 ETH each</div>
+    </div>
+</div>
+
+<!-- Per-wallet table -->
+<div class="tbl-wrap">
+    <div class="tbl-title">Per-Wallet Breakdown</div>
     <table>
-        <thead><tr><th>Token</th><th>Buyer</th><th>Amount</th><th>Price</th><th>Total</th></tr></thead>
+        <thead>
+            <tr>
+                <th style="text-align:left">Wallet</th>
+                <th>VIBESTR In</th>
+                <th>VIBESTR Out</th>
+                <th>GVC In</th>
+                <th>GVC Out</th>
+                <th>STOKED</th>
+                <th>MOODS</th>
+                <th>Net</th>
+            </tr>
+        </thead>
         <tbody>
-            {''.join(f'<tr><td>{s["token"]}</td><td>{s["buyer"]}</td><td class="num">{s["amount"]}</td><td class="num">{s["price"]}</td><td class="num sell">{s["total"]:.1f} ETH</td></tr>' for s in OTC_SALES)}
+            {wallet_rows}
+            <tr class="total-row">
+                <td class="wallet-name">TOTAL</td>
+                <td class="num buy">{t_vib_buy:.2f}</td>
+                <td class="num sell">{t_vib_sell:.2f}</td>
+                <td class="num buy">{t_gvc_buy:.2f}</td>
+                <td class="num sell">{t_gvc_sell:.2f}</td>
+                <td class="num sell">{t_stk_eth:.2f}<span class="usdg-sm">+${t_stk_usdg:.0f}</span></td>
+                <td class="num sell">{t_moods:.2f}</td>
+                <td class="num {'profit' if grand_net - OTC_ETH > 0 else 'loss'}">{grand_net - OTC_ETH:+.2f}</td>
+            </tr>
         </tbody>
     </table>
-    <div style="font-size:11px; color:#6e7681; margin-top:6px;">50 VIBESTR sold off-chain at 0.2 ETH each = <span class="sell">10 ETH</span></div>
 </div>
 
-<!-- Summary cards -->
-<div class="summary-cards">
-    <div class="summary-card sc-stoked">
-        <div class="sc-title">STOKED Total ({total_stoked_sells} sells)</div>
-        <div class="sc-subtitle">Cryo &rarr; STOKED &rarr; sold for ETH/USDG</div>
-        <div class="sc-big sell">{total_stoked_eth:.2f} ETH</div>
-        <div class="sc-detail usdg">+ ${total_stoked_usdg:.2f} USDG</div>
-    </div>
-    <div class="summary-card sc-vibestr">
-        <div class="sc-title">VIBESTR Total</div>
-        <div class="sc-subtitle">{fmt_amt(total_vib_sell_amt)} sold on-chain + 50 OTC</div>
-        <div class="sc-big">
-            <span class="buy">{total_vib_buy_eth:.2f}</span> in /
-            <span class="sell">{total_vib_sell_eth + OTC_ETH:.2f}</span> out
-        </div>
-        <div class="sc-detail">Net: <span class="{'sell' if vib_net > 0 else 'buy'}">{vib_net:+.2f} ETH</span> (incl OTC)</div>
-    </div>
-    <div class="summary-card sc-gvc">
-        <div class="sc-title">GVC Sold Directly ({total_gvc_sold} sales)</div>
-        <div class="sc-subtitle">{total_gvc_bought} bought &middot; {total_gvc_sold} sold on OpenSea/on-chain</div>
-        <div class="sc-big">
-            <span class="buy">{total_gvc_buy_eth:.2f}</span> in /
-            <span class="sell">{total_gvc_sell_eth:.2f}</span> out
-        </div>
-        <div class="sc-detail">Net: <span class="{'sell' if gvc_net > 0 else 'buy'}">{gvc_net:+.2f} ETH</span></div>
-    </div>
-    <div class="summary-card sc-grand">
-        <div class="sc-title">Grand Total (all in ETH)</div>
-        <div class="sc-subtitle">STOKED + VIBESTR + GVC + MOODS + OTC</div>
-        <div class="sc-big sell">{grand_out:.2f} ETH</div>
-        <div class="sc-detail">In: <span class="buy">{grand_in:.2f}</span> &middot; Out: <span class="sell">{grand_out:.2f}</span> &middot; Net: <span class="{'sell' if grand_net > 0 else 'buy'}">{grand_net:+.2f}</span></div>
-        <div class="sc-detail usdg">+ ${total_stoked_usdg:.2f} USDG from STOKED</div>
-    </div>
+<!-- Flow explanation -->
+<div class="flow">
+    <strong>Token flow:</strong>
+    ETH <span class="arrow">&rarr;</span> buy <span class="buy">GVC</span> &amp; <span class="buy">VIBESTR</span>
+    <span class="arrow">&rarr;</span> Cryo Chamber (1 GVC = 3 MOODS)
+    <span class="arrow">&rarr;</span> some <span class="sell">MOODS sold</span> directly, most MOODS <span class="arrow">&rarr;</span> ANVIL <span class="arrow">&rarr;</span> <span class="sell">STOKED</span> <span class="arrow">&rarr;</span> sold for ETH/USDG.
+    No ETH was spent buying STOKED or MOODS. OTC: 50 VIBESTR sold off-chain for {OTC_ETH:.0f} ETH.
 </div>
 
-{f'<div class="summary-cards" style="grid-template-columns:1fr"><div class="summary-card" style="border-color:#3d4450"><div class="sc-title">MOODS ({total_moods_count} sales)</div><div class="sc-subtitle">Sold on OpenSea (Robinhood chain)</div><div class="sc-big sell">{total_moods_eth:.4f} ETH</div></div></div>' if total_moods_count > 0 else ''}
-
-<div class="flow-note">
-    <strong>Token flow:</strong> ETH &rarr; buy GVC &amp; VIBESTR &rarr; Cryo Chamber (1 GVC = 3 MOODS) &rarr; some MOODS sold directly, most MOODS &rarr; ANVIL &rarr; STOKED &rarr; sold for ETH/USDG. No ETH was spent buying STOKED or MOODS directly.
-</div>
-
-<div class="footer">
-    <strong>Tracked Wallets:</strong><br>
-    {'<br>'.join(f"{wn}: <code>{addr}</code>" for wn, addr in WALLET_ADDRS.items())}
-    <br><br>
-    <strong>Data Sources:</strong> Etherscan V2 API (VIBESTR, GVC on Ethereum), Robinhood Chain (STOKED), OpenSea (MOODS), Manual (OTC)
+<div class="foot">
+    <strong>Wallets:</strong>
+    {' &middot; '.join(f'{wn}: <code>{WALLET_ADDRS[wn][:8]}...</code>' for wn in WALLETS)}
+    <br>Sources: Etherscan V2 (VIBESTR, GVC), Robinhood Chain (STOKED), OpenSea (MOODS), Manual (OTC)
 </div>
 
 </body>

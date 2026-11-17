@@ -3,650 +3,284 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DGMD Wallet Activity Report</title>
+<title>DGMD Wallet Tracker</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: #0a0e14;
     color: #c9d1d9;
-    padding: 20px;
-    line-height: 1.4;
+    padding: 24px 28px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
-h1 {
-    color: #fff;
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 4px;
-    letter-spacing: -0.5px;
-}
-.subtitle { color: #6e7681; font-size: 12px; margin-bottom: 20px; }
 
-.sell { color: #f85149; }
-.buy { color: #3fb950; }
-.usdg { color: #d2a8ff; }
-.num { text-align: right; font-variant-numeric: tabular-nums; font-family: 'SF Mono', 'Fira Code', monospace; }
+/* Header */
+.hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }
+h1 { color: #fff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+.ts { color: #3d4450; font-size: 10px; }
 
-/* Wallet columns */
-.columns {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    margin-bottom: 24px;
-    overflow-x: auto;
-}
-.wallet-col {
+/* Hero cards row */
+.hero { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.hero-card {
     background: #111820;
     border: 1px solid #1c2432;
     border-radius: 10px;
-    overflow: hidden;
-    min-width: 200px;
-}
-.col-header {
-    padding: 14px 12px 10px;
-    border-bottom: 2px solid #1c2432;
-}
-.col-name {
-    color: #fff;
-    font-size: 15px;
-    font-weight: 700;
-}
-.col-addr {
-    color: #3d4450;
-    font-size: 9px;
-    font-family: 'SF Mono', monospace;
-    margin-top: 2px;
-}
-.col-total {
-    font-size: 20px;
-    font-weight: 700;
-    margin-top: 6px;
-    font-family: 'SF Mono', monospace;
-}
-
-/* Token sections */
-.token-section {
-    padding: 10px 12px;
-    border-bottom: 1px solid #1c2432;
-}
-.token-header {
-    color: #58a6ff;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin-bottom: 6px;
-}
-.token-header .badge {
-    background: #1c2432;
-    color: #6e7681;
-    font-size: 9px;
-    padding: 1px 5px;
-    border-radius: 3px;
-    letter-spacing: 0;
-    text-transform: uppercase;
-    vertical-align: middle;
-}
-.token-section table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-}
-.token-section td {
-    padding: 2px 0;
-    font-family: 'SF Mono', monospace;
-    font-size: 12px;
-}
-.token-section td:first-child {
-    color: #8b949e;
-}
-.token-section td:last-child {
-    text-align: right;
-    font-weight: 600;
-}
-.tx-group { margin-bottom: 4px; }
-.tx-label {
-    color: #6e7681;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 2px;
-    margin-top: 4px;
-}
-.sub-total {
-    margin-top: 6px;
-    padding-top: 6px;
-    border-top: 1px solid #1c2432;
-    font-size: 11px;
-    font-weight: 700;
-    font-family: 'SF Mono', monospace;
-}
-.summary-line {
-    font-size: 12px;
-    font-family: 'SF Mono', monospace;
-    padding: 2px 0;
-}
-.no-sells {
-    color: #3d4450;
-    font-size: 11px;
-    font-style: italic;
-    padding: 4px 0;
-}
-
-.wallet-total-bar {
-    padding: 10px 12px;
-    background: #0d1219;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    font-size: 11px;
-    font-weight: 700;
-    font-family: 'SF Mono', monospace;
-}
-
-/* Summary cards at bottom */
-.summary-cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-}
-.summary-card {
-    background: #111820;
-    border: 1px solid #1c2432;
-    border-radius: 10px;
-    padding: 16px;
-    overflow: hidden;
+    padding: 16px 18px;
     position: relative;
+    overflow: hidden;
 }
-.summary-card::before {
+.hero-card::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
 }
-.summary-card.sc-stoked::before { background: #f0883e; }
-.summary-card.sc-vibestr::before { background: #3fb950; }
-.summary-card.sc-gvc::before { background: #58a6ff; }
-.summary-card.sc-grand::before { background: linear-gradient(90deg, #3fb950, #f85149); }
-.sc-title {
-    font-size: 12px;
-    font-weight: 700;
-    color: #8b949e;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-}
-.sc-subtitle {
-    font-size: 10px;
-    color: #484f58;
-    margin-bottom: 8px;
-}
-.sc-big {
-    font-size: 28px;
-    font-weight: 800;
-    font-family: 'SF Mono', monospace;
-    letter-spacing: -1px;
-}
-.sc-detail {
-    font-size: 11px;
-    color: #6e7681;
-    margin-top: 4px;
-    font-family: 'SF Mono', monospace;
-}
+.hc-in::before { background: #3fb950; }
+.hc-out::before { background: #f85149; }
+.hc-net::before { background: #58a6ff; }
+.hc-label { color: #6e7681; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+.hc-value { font-size: 32px; font-weight: 800; margin-top: 4px; letter-spacing: -1px; font-family: 'SF Mono', monospace; }
+.hc-sub { color: #3d4450; font-size: 10px; margin-top: 2px; }
 
-/* OTC section */
-.otc-section {
+/* Token breakdown cards */
+.tokens { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+.tk {
     background: #111820;
     border: 1px solid #1c2432;
     border-radius: 10px;
-    padding: 16px;
+    padding: 14px;
+    text-align: center;
+}
+.tk-name { color: #58a6ff; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.tk-big { font-size: 20px; font-weight: 800; font-family: 'SF Mono', monospace; letter-spacing: -0.5px; }
+.tk-row { display: flex; justify-content: space-between; font-size: 11px; margin-top: 4px; font-family: 'SF Mono', monospace; }
+.tk-detail { color: #484f58; font-size: 10px; margin-top: 4px; }
+.tk-net { font-size: 13px; font-weight: 700; margin-top: 6px; font-family: 'SF Mono', monospace; }
+
+/* Wallet table */
+.tbl-wrap {
+    background: #111820;
+    border: 1px solid #1c2432;
+    border-radius: 10px;
+    overflow: hidden;
     margin-bottom: 20px;
 }
-.otc-section h3 {
-    color: #d2a8ff;
-    font-size: 13px;
-    font-weight: 700;
+.tbl-title { padding: 12px 16px 0; color: #fff; font-size: 13px; font-weight: 700; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th {
+    text-align: right;
+    color: #3d4450;
+    font-weight: 600;
+    padding: 8px 12px;
+    font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: 8px;
+    border-bottom: 1px solid #1c2432;
+    white-space: nowrap;
 }
-.otc-section table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-    max-width: 500px;
-}
-.otc-section th {
-    text-align: left;
-    color: #484f58;
-    font-weight: 600;
-    padding: 4px 8px;
-    font-size: 10px;
-    text-transform: uppercase;
-}
-.otc-section td {
-    padding: 4px 8px;
+th:first-child { text-align: left; }
+td { padding: 8px 12px; border-bottom: 1px solid #141c27; }
+.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
     font-family: 'SF Mono', monospace;
-}
-
-/* Token flow note */
-.flow-note {
-    background: #0d1219;
-    border-left: 3px solid #d29922;
-    padding: 10px 16px;
     font-size: 12px;
-    color: #6e7681;
-    border-radius: 0 8px 8px 0;
-    margin-bottom: 20px;
 }
-.flow-note strong { color: #d29922; }
+.wallet-name {
+    font-weight: 600;
+    color: #e6edf3;
+    white-space: nowrap;
+}
+.addr { color: #3d4450; font-size: 9px; font-family: 'SF Mono', monospace; margin-left: 6px; }
+.total-row { background: #0d1219; font-weight: 700; }
+.total-row td { border-top: 2px solid #1c2432; padding-top: 10px; padding-bottom: 10px; }
+
+/* Colors */
+.buy { color: #3fb950; }
+.sell { color: #f85149; }
+.profit { color: #f85149; }
+.loss { color: #3fb950; }
+.usdg { color: #d2a8ff; }
+.usdg-sm { color: #d2a8ff; font-size: 9px; margin-left: 3px; }
+
+/* Flow note */
+.flow {
+    background: #111820;
+    border: 1px solid #1c2432;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 11px;
+    color: #484f58;
+    margin-bottom: 16px;
+    line-height: 1.6;
+}
+.flow strong { color: #6e7681; }
+.flow .arrow { color: #3d4450; }
 
 /* Footer */
-.footer {
-    font-size: 10px;
-    color: #3d4450;
-    margin-top: 24px;
-    padding-top: 12px;
-    border-top: 1px solid #1c2432;
-}
-.footer code {
-    background: #111820;
-    padding: 1px 4px;
-    border-radius: 3px;
-    font-size: 9px;
-    color: #484f58;
-}
+.foot { font-size: 9px; color: #2d333b; padding-top: 10px; border-top: 1px solid #1c2432; }
+.foot code { font-size: 8px; color: #3d4450; }
 
-@media (max-width: 1100px) {
-    .columns { grid-template-columns: repeat(3, 1fr); }
-    .summary-cards { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 900px) {
+    .tokens { grid-template-columns: repeat(3, 1fr); }
+    .hero { grid-template-columns: 1fr; }
+    body { padding: 14px; }
 }
-@media (max-width: 700px) {
-    .columns { grid-template-columns: 1fr 1fr; }
-    .summary-cards { grid-template-columns: 1fr; }
-    body { padding: 12px; }
-}
-@media (max-width: 450px) {
-    .columns { grid-template-columns: 1fr; }
+@media (max-width: 600px) {
+    .tokens { grid-template-columns: 1fr 1fr; }
+    table { font-size: 10px; }
+    th, td { padding: 6px 8px; }
 }
 </style>
 </head>
 <body>
 
-<h1>DGMD STOKED + VIBESTR + GVC: All Sells</h1>
-<p class="subtitle">All-time activity across 5 tracked wallets. STOKED &amp; VIBESTR individual transactions shown. GVC &amp; MOODS totals only.</p>
-
-<div class="columns">
-
-        <div class="wallet-col">
-            <div class="col-header">
-                <div class="col-name">IKZ1</div>
-                <div class="col-addr">(0xb206...2b11)</div>
-                <div class="col-total"><span class="sell">107.52 ETH</span> out</div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">STOKED</div>
-                <table><tbody><tr><td>3.3M</td><td class="num">0.39</td></tr>
-<tr><td>3.3M</td><td class="num">0.41</td></tr>
-<tr><td>1.6M</td><td class="num">0.21</td></tr>
-<tr><td>2.0M</td><td class="num">0.27</td></tr>
-<tr><td>2.6M</td><td class="num">0.34</td></tr>
-<tr><td>2.0M</td><td class="num">0.28</td></tr>
-</tbody></table>
-                <div class="sub-total">Sub: 14.8M &middot; <span class="sell">1.91 ETH</span></div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">VIBESTR</div>
-                <div class="tx-group">
-                    <div class="tx-label">Buys (16)</div>
-                    <table><tbody><tr><td>6.5M</td><td class="num buy">8.98</td></tr>
-<tr><td>6.8M</td><td class="num buy">7.26</td></tr>
-<tr><td>4.1M</td><td class="num buy">4.20</td></tr>
-<tr><td>1.6M</td><td class="num buy">3.20</td></tr>
-<tr><td>3.9M</td><td class="num buy">3.00</td></tr>
-<tr><td>4.0M</td><td class="num buy">3.00</td></tr>
-<tr><td>3.7M</td><td class="num buy">3.00</td></tr>
-<tr><td>3.0M</td><td class="num buy">3.00</td></tr>
-<tr><td>1.4M</td><td class="num buy">2.90</td></tr>
-<tr><td>1.4M</td><td class="num buy">2.80</td></tr>
-<tr><td>1.8M</td><td class="num buy">2.20</td></tr>
-<tr><td>2.4M</td><td class="num buy">2.00</td></tr>
-<tr><td>2.2M</td><td class="num buy">2.00</td></tr>
-<tr><td>457K</td><td class="num buy">0.97</td></tr>
-<tr><td>685K</td><td class="num buy">0.90</td></tr>
-<tr><td>155K</td><td class="num buy">0.17</td></tr>
-</tbody></table>
-                </div>
-                <div class="tx-group">
-                    <div class="tx-label">Sells (23)</div>
-                    <table><tbody><tr><td>2.5M</td><td class="num sell">7.68</td></tr>
-<tr><td>2.5M</td><td class="num sell">7.61</td></tr>
-<tr><td>2.5M</td><td class="num sell">7.30</td></tr>
-<tr><td>2.0M</td><td class="num sell">7.06</td></tr>
-<tr><td>2.0M</td><td class="num sell">7.05</td></tr>
-<tr><td>2.0M</td><td class="num sell">6.98</td></tr>
-<tr><td>2.0M</td><td class="num sell">5.37</td></tr>
-<tr><td>2.0M</td><td class="num sell">5.33</td></tr>
-<tr><td>1.6M</td><td class="num sell">5.07</td></tr>
-<tr><td>1.6M</td><td class="num sell">5.01</td></tr>
-<tr><td>2.0M</td><td class="num sell">4.76</td></tr>
-<tr><td>2.0M</td><td class="num sell">4.66</td></tr>
-<tr><td>2.0M</td><td class="num sell">3.95</td></tr>
-<tr><td>2.0M</td><td class="num sell">3.93</td></tr>
-<tr><td>2.0M</td><td class="num sell">3.92</td></tr>
-<tr><td>2.0M</td><td class="num sell">3.89</td></tr>
-<tr><td>2.0M</td><td class="num sell">3.86</td></tr>
-<tr><td>2.0M</td><td class="num sell">3.37</td></tr>
-<tr><td>2.1M</td><td class="num sell">1.59</td></tr>
-<tr><td>2.1M</td><td class="num sell">1.55</td></tr>
-<tr><td>1.7M</td><td class="num sell">1.31</td></tr>
-<tr><td>1.5M</td><td class="num sell">1.18</td></tr>
-<tr><td>83K</td><td class="num sell">0.03</td></tr>
-</tbody></table>
-                </div>
-                <div class="sub-total">In: <span class="buy">49.58</span> &middot; Out: <span class="sell">102.47</span> &middot; Net: <span class="sell">+52.89</span></div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">GVC <span class="badge">NFT</span></div>
-                <div class="summary-line">Bought: 81 NFTs &middot; <span class="buy">62.04 ETH</span></div>
-                <div class="summary-line">Sold: 48 NFTs &middot; <span class="sell">3.14 ETH</span></div>
-                <div class="sub-total">Net: <span class="buy">-58.90 ETH</span></div>
-            </div>
-            
-            <div class="wallet-total-bar">
-                <span>ETH In: <span class="buy">111.61</span></span>
-                <span>ETH Out: <span class="sell">107.52</span></span>
-                <span>Net: <span class="buy">-4.09</span></span>
-            </div>
-        </div>
-        <div class="wallet-col">
-            <div class="col-header">
-                <div class="col-name">DGMD22</div>
-                <div class="col-addr">(0x2d13...e42e)</div>
-                <div class="col-total"><span class="sell">16.89 ETH</span> out</div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">STOKED</div>
-                <table><tbody><tr><td>2.8M</td><td class="num">0.29</td></tr>
-<tr><td>1.4M</td><td class="num">0.15</td></tr>
-<tr><td>1.7M</td><td class="num">0.19</td></tr>
-<tr><td>2.2M</td><td class="num">0.25</td></tr>
-<tr><td>1.4M</td><td class="num usdg">$263.89</td></tr>
-</tbody></table>
-                <div class="sub-total">Sub: 9.5M &middot; <span class="sell">0.88 ETH</span> <span class="usdg">+ $263.89</span></div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">VIBESTR</div>
-                <div class="tx-group">
-                    <div class="tx-label">Buys (12)</div>
-                    <table><tbody><tr><td>6.0M</td><td class="num buy">7.06</td></tr>
-<tr><td>3.0M</td><td class="num buy">4.00</td></tr>
-<tr><td>2.9M</td><td class="num buy">3.03</td></tr>
-<tr><td>2.8M</td><td class="num buy">3.03</td></tr>
-<tr><td>1.7M</td><td class="num buy">2.50</td></tr>
-<tr><td>1.0M</td><td class="num buy">1.80</td></tr>
-<tr><td>1.6M</td><td class="num buy">1.60</td></tr>
-<tr><td>1.5M</td><td class="num buy">1.51</td></tr>
-<tr><td>843K</td><td class="num buy">1.50</td></tr>
-<tr><td>1.2M</td><td class="num buy">1.30</td></tr>
-<tr><td>951K</td><td class="num buy">1.00</td></tr>
-<tr><td>384K</td><td class="num buy">0.40</td></tr>
-</tbody></table>
-                </div>
-                <div class="tx-group">
-                    <div class="tx-label">Sells (6)</div>
-                    <table><tbody><tr><td>2.3M</td><td class="num sell">6.43</td></tr>
-<tr><td>2.0M</td><td class="num sell">5.85</td></tr>
-<tr><td>1.2M</td><td class="num sell">0.75</td></tr>
-<tr><td>900K</td><td class="num sell">0.57</td></tr>
-<tr><td>800K</td><td class="num sell">0.51</td></tr>
-<tr><td>850K</td><td class="num sell">0.51</td></tr>
-</tbody></table>
-                </div>
-                <div class="sub-total">In: <span class="buy">28.72</span> &middot; Out: <span class="sell">14.63</span> &middot; Net: <span class="buy">-14.10</span></div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">GVC <span class="badge">NFT</span></div>
-                <div class="summary-line">Bought: 210 NFTs &middot; <span class="buy">140.31 ETH</span></div>
-                <div class="summary-line">Sold: 10 NFTs &middot; <span class="sell">0.55 ETH</span></div>
-                <div class="sub-total">Net: <span class="buy">-139.76 ETH</span></div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">MOODS <span class="badge">NFT</span></div>
-                <div class="summary-line">Sold: 10 NFTs &middot; <span class="sell">0.8290 ETH</span></div>
-            </div>
-            <div class="wallet-total-bar">
-                <span>ETH In: <span class="buy">169.03</span></span>
-                <span>ETH Out: <span class="sell">16.89</span></span>
-                <span>Net: <span class="buy">-152.15</span></span>
-            </div>
-        </div>
-        <div class="wallet-col">
-            <div class="col-header">
-                <div class="col-name">EraOfVibes</div>
-                <div class="col-addr">(0x6623...13cf)</div>
-                <div class="col-total"><span class="sell">19.18 ETH</span> out</div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">STOKED</div>
-                <table><tbody><tr><td>1.5M</td><td class="num">0.21</td></tr>
-<tr><td>1.5M</td><td class="num">0.22</td></tr>
-<tr><td>1.6M</td><td class="num">0.24</td></tr>
-<tr><td>1.1M</td><td class="num">0.17</td></tr>
-<tr><td>1.4M</td><td class="num">0.21</td></tr>
-<tr><td>1.8M</td><td class="num">0.27</td></tr>
-</tbody></table>
-                <div class="sub-total">Sub: 8.9M &middot; <span class="sell">1.31 ETH</span></div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">VIBESTR</div>
-                <div class="tx-group">
-                    <div class="tx-label">Buys (8)</div>
-                    <table><tbody><tr><td>1.4M</td><td class="num buy">3.00</td></tr>
-<tr><td>1.7M</td><td class="num buy">2.80</td></tr>
-<tr><td>1.2M</td><td class="num buy">2.70</td></tr>
-<tr><td>1.3M</td><td class="num buy">1.70</td></tr>
-<tr><td>1.1M</td><td class="num buy">1.55</td></tr>
-<tr><td>576K</td><td class="num buy">1.30</td></tr>
-<tr><td>185K</td><td class="num buy">0.35</td></tr>
-<tr><td>164K</td><td class="num buy">0.18</td></tr>
-</tbody></table>
-                </div>
-                <div class="tx-group">
-                    <div class="tx-label">Sells (5)</div>
-                    <table><tbody><tr><td>2.0M</td><td class="num sell">1.57</td></tr>
-<tr><td>2.1M</td><td class="num sell">1.55</td></tr>
-<tr><td>1.7M</td><td class="num sell">1.36</td></tr>
-<tr><td>1.7M</td><td class="num sell">1.33</td></tr>
-<tr><td>95K</td><td class="num sell">0.03</td></tr>
-</tbody></table>
-                </div>
-                <div class="sub-total">In: <span class="buy">13.58</span> &middot; Out: <span class="sell">5.84</span> &middot; Net: <span class="buy">-7.74</span></div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">GVC <span class="badge">NFT</span></div>
-                <div class="summary-line">Bought: 59 NFTs &middot; <span class="buy">56.37 ETH</span></div>
-                <div class="summary-line">Sold: 65 NFTs &middot; <span class="sell">12.03 ETH</span></div>
-                <div class="sub-total">Net: <span class="buy">-44.34 ETH</span></div>
-            </div>
-            
-            <div class="wallet-total-bar">
-                <span>ETH In: <span class="buy">69.95</span></span>
-                <span>ETH Out: <span class="sell">19.18</span></span>
-                <span>Net: <span class="buy">-50.77</span></span>
-            </div>
-        </div>
-        <div class="wallet-col">
-            <div class="col-header">
-                <div class="col-name">Extra25</div>
-                <div class="col-addr">(0x83e5...f35d)</div>
-                <div class="col-total"><span class="sell">14.02 ETH</span> out</div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">STOKED</div>
-                <table><tbody><tr><td>4.6M</td><td class="num">0.64</td></tr>
-<tr><td>1.1M</td><td class="num">0.16</td></tr>
-<tr><td>1.4M</td><td class="num">0.22</td></tr>
-<tr><td>1.8M</td><td class="num">0.29</td></tr>
-</tbody></table>
-                <div class="sub-total">Sub: 8.9M &middot; <span class="sell">1.31 ETH</span></div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">VIBESTR</div>
-                <div class="tx-group">
-                    <div class="tx-label">Buys (5)</div>
-                    <table><tbody><tr><td>1.7M</td><td class="num buy">2.75</td></tr>
-<tr><td>1.5M</td><td class="num buy">2.10</td></tr>
-<tr><td>999K</td><td class="num buy">1.40</td></tr>
-<tr><td>223K</td><td class="num buy">0.42</td></tr>
-<tr><td>91K</td><td class="num buy">0.10</td></tr>
-</tbody></table>
-                </div>
-                <div class="tx-group">
-                    <div class="tx-label">Sells (1)</div>
-                    <table><tbody><tr><td>82K</td><td class="num sell">0.02</td></tr>
-</tbody></table>
-                </div>
-                <div class="sub-total">In: <span class="buy">6.77</span> &middot; Out: <span class="sell">0.02</span> &middot; Net: <span class="buy">-6.75</span></div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">GVC <span class="badge">NFT</span></div>
-                <div class="summary-line">Bought: 40 NFTs &middot; <span class="buy">19.32 ETH</span></div>
-                <div class="summary-line">Sold: 65 NFTs &middot; <span class="sell">12.68 ETH</span></div>
-                <div class="sub-total">Net: <span class="buy">-6.64 ETH</span></div>
-            </div>
-            
-            <div class="wallet-total-bar">
-                <span>ETH In: <span class="buy">26.09</span></span>
-                <span>ETH Out: <span class="sell">14.02</span></span>
-                <span>Net: <span class="buy">-12.07</span></span>
-            </div>
-        </div>
-        <div class="wallet-col">
-            <div class="col-header">
-                <div class="col-name">InvFund1</div>
-                <div class="col-addr">(0xa186...864b)</div>
-                <div class="col-total"><span class="sell">13.61 ETH</span> out</div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">STOKED</div>
-                <table><tbody><tr><td>4.0M</td><td class="num">0.78</td></tr>
-<tr><td>4.0M</td><td class="num">0.79</td></tr>
-<tr><td>4.5M</td><td class="num">0.97</td></tr>
-<tr><td>3.1M</td><td class="num">0.79</td></tr>
-</tbody></table>
-                <div class="sub-total">Sub: 15.7M &middot; <span class="sell">3.32 ETH</span></div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">VIBESTR</div>
-                <div class="tx-group">
-                    <div class="tx-label">Buys (4)</div>
-                    <table><tbody><tr><td>1.7M</td><td class="num buy">3.04</td></tr>
-<tr><td>1.4M</td><td class="num buy">2.15</td></tr>
-<tr><td>1.0M</td><td class="num buy">1.40</td></tr>
-<tr><td>82K</td><td class="num buy">0.09</td></tr>
-</tbody></table>
-                </div>
-                <div class="tx-group">
-                    <div class="tx-label">Sells (3)</div>
-                    <table><tbody><tr><td>2.1M</td><td class="num sell">1.74</td></tr>
-<tr><td>2.0M</td><td class="num sell">1.61</td></tr>
-<tr><td>106K</td><td class="num sell">0.04</td></tr>
-</tbody></table>
-                </div>
-                <div class="sub-total">In: <span class="buy">6.68</span> &middot; Out: <span class="sell">3.39</span> &middot; Net: <span class="buy">-3.29</span></div>
-            </div>
-            
-            <div class="token-section">
-                <div class="token-header">GVC <span class="badge">NFT</span></div>
-                <div class="summary-line">Bought: 60 NFTs &middot; <span class="buy">48.87 ETH</span></div>
-                <div class="summary-line">Sold: 55 NFTs &middot; <span class="sell">6.90 ETH</span></div>
-                <div class="sub-total">Net: <span class="buy">-41.97 ETH</span></div>
-            </div>
-            
-            <div class="wallet-total-bar">
-                <span>ETH In: <span class="buy">55.55</span></span>
-                <span>ETH Out: <span class="sell">13.61</span></span>
-                <span>Net: <span class="buy">-41.94</span></span>
-            </div>
-        </div>
+<div class="hdr">
+    <h1>DGMD Wallet Tracker</h1>
+    <span class="ts">Updated Nov 17, 2026 05:20 UTC &middot; 5 wallets tracked</span>
 </div>
 
-<!-- OTC Sales -->
-<div class="otc-section">
-    <h3>OTC (Off-Chain) Sales</h3>
+<!-- Hero cards -->
+<div class="hero">
+    <div class="hero-card hc-in">
+        <div class="hc-label">Total ETH Spent (Buys)</div>
+        <div class="hc-value buy">432.23 ETH</div>
+        <div class="hc-sub">VIBESTR + GVC purchases across all wallets</div>
+    </div>
+    <div class="hero-card hc-out">
+        <div class="hc-label">Total ETH Received (Sells)</div>
+        <div class="hc-value sell">181.21 ETH</div>
+        <div class="hc-sub">All sells + OTC + $264 USDG from STOKED</div>
+    </div>
+    <div class="hero-card hc-net">
+        <div class="hc-label">Net P&L</div>
+        <div class="hc-value buy">-251.02 ETH</div>
+        <div class="hc-sub">Spent more than received</div>
+    </div>
+</div>
+
+<!-- Token breakdown -->
+<div class="tokens">
+    <div class="tk">
+        <div class="tk-name">VIBESTR</div>
+        <div class="tk-row"><span class="buy">In: 105.33</span><span class="sell">Out: 126.34</span></div>
+        <div class="tk-net sell">Net: +31.01</div>
+        <div class="tk-detail">136.34 total w/ OTC</div>
+    </div>
+    <div class="tk">
+        <div class="tk-name">GVC</div>
+        <div class="tk-row"><span class="buy">In: 326.90</span><span class="sell">Out: 35.30</span></div>
+        <div class="tk-net buy">Net: -291.60</div>
+        <div class="tk-detail">450 bought / 243 sold</div>
+    </div>
+    <div class="tk">
+        <div class="tk-name">STOKED</div>
+        <div class="tk-big sell">8.74</div>
+        <div class="tk-detail">25 sells &middot; <span class="usdg">+$264 USDG</span></div>
+    </div>
+    <div class="tk">
+        <div class="tk-name">MOODS</div>
+        <div class="tk-big sell">0.8290</div>
+        <div class="tk-detail">10 NFTs sold on OpenSea</div>
+    </div>
+    <div class="tk">
+        <div class="tk-name">OTC</div>
+        <div class="tk-big sell">10.00</div>
+        <div class="tk-detail">50 VIBESTR @ 0.2 ETH each</div>
+    </div>
+</div>
+
+<!-- Per-wallet table -->
+<div class="tbl-wrap">
+    <div class="tbl-title">Per-Wallet Breakdown</div>
     <table>
-        <thead><tr><th>Token</th><th>Buyer</th><th>Amount</th><th>Price</th><th>Total</th></tr></thead>
+        <thead>
+            <tr>
+                <th style="text-align:left">Wallet</th>
+                <th>VIBESTR In</th>
+                <th>VIBESTR Out</th>
+                <th>GVC In</th>
+                <th>GVC Out</th>
+                <th>STOKED</th>
+                <th>MOODS</th>
+                <th>Net</th>
+            </tr>
+        </thead>
         <tbody>
-            <tr><td>VIBESTR</td><td>KillerNiz</td><td class="num">10</td><td class="num">0.2</td><td class="num sell">2.0 ETH</td></tr><tr><td>VIBESTR</td><td>Joafen</td><td class="num">40</td><td class="num">0.2</td><td class="num sell">8.0 ETH</td></tr>
+            <tr>
+            <td class="wallet-name">IKZ1<span class="addr">0xb206...2b11</span></td>
+            <td class="num buy">49.58</td>
+            <td class="num sell">102.47</td>
+            <td class="num buy">62.04</td>
+            <td class="num sell">3.14</td>
+            <td class="num sell">1.91</td>
+            <td class="num sell">0.00</td>
+            <td class="num loss">-4.09</td>
+        </tr><tr>
+            <td class="wallet-name">DGMD22<span class="addr">0x2d13...e42e</span></td>
+            <td class="num buy">28.72</td>
+            <td class="num sell">14.63</td>
+            <td class="num buy">140.31</td>
+            <td class="num sell">0.55</td>
+            <td class="num sell">0.88<span class="usdg-sm">+$264</span></td>
+            <td class="num sell">0.83</td>
+            <td class="num loss">-152.15</td>
+        </tr><tr>
+            <td class="wallet-name">EraOfVibes<span class="addr">0x6623...13cf</span></td>
+            <td class="num buy">13.58</td>
+            <td class="num sell">5.84</td>
+            <td class="num buy">56.37</td>
+            <td class="num sell">12.03</td>
+            <td class="num sell">1.31</td>
+            <td class="num sell">0.00</td>
+            <td class="num loss">-50.77</td>
+        </tr><tr>
+            <td class="wallet-name">Extra25<span class="addr">0x83e5...f35d</span></td>
+            <td class="num buy">6.77</td>
+            <td class="num sell">0.02</td>
+            <td class="num buy">19.32</td>
+            <td class="num sell">12.68</td>
+            <td class="num sell">1.31</td>
+            <td class="num sell">0.00</td>
+            <td class="num loss">-12.07</td>
+        </tr><tr>
+            <td class="wallet-name">InvestmentFund1<span class="addr">0xa186...864b</span></td>
+            <td class="num buy">6.68</td>
+            <td class="num sell">3.39</td>
+            <td class="num buy">48.87</td>
+            <td class="num sell">6.90</td>
+            <td class="num sell">3.32</td>
+            <td class="num sell">0.00</td>
+            <td class="num loss">-41.94</td>
+        </tr>
+            <tr class="total-row">
+                <td class="wallet-name">TOTAL</td>
+                <td class="num buy">105.33</td>
+                <td class="num sell">126.34</td>
+                <td class="num buy">326.90</td>
+                <td class="num sell">35.30</td>
+                <td class="num sell">8.74<span class="usdg-sm">+$264</span></td>
+                <td class="num sell">0.83</td>
+                <td class="num loss">-261.02</td>
+            </tr>
         </tbody>
     </table>
-    <div style="font-size:11px; color:#6e7681; margin-top:6px;">50 VIBESTR sold off-chain at 0.2 ETH each = <span class="sell">10 ETH</span></div>
 </div>
 
-<!-- Summary cards -->
-<div class="summary-cards">
-    <div class="summary-card sc-stoked">
-        <div class="sc-title">STOKED Total (25 sells)</div>
-        <div class="sc-subtitle">Cryo &rarr; STOKED &rarr; sold for ETH/USDG</div>
-        <div class="sc-big sell">8.74 ETH</div>
-        <div class="sc-detail usdg">+ $263.89 USDG</div>
-    </div>
-    <div class="summary-card sc-vibestr">
-        <div class="sc-title">VIBESTR Total</div>
-        <div class="sc-subtitle">64.2M sold on-chain + 50 OTC</div>
-        <div class="sc-big">
-            <span class="buy">105.33</span> in /
-            <span class="sell">136.34</span> out
-        </div>
-        <div class="sc-detail">Net: <span class="sell">+31.01 ETH</span> (incl OTC)</div>
-    </div>
-    <div class="summary-card sc-gvc">
-        <div class="sc-title">GVC Sold Directly (243 sales)</div>
-        <div class="sc-subtitle">450 bought &middot; 243 sold on OpenSea/on-chain</div>
-        <div class="sc-big">
-            <span class="buy">326.90</span> in /
-            <span class="sell">35.30</span> out
-        </div>
-        <div class="sc-detail">Net: <span class="buy">-291.60 ETH</span></div>
-    </div>
-    <div class="summary-card sc-grand">
-        <div class="sc-title">Grand Total (all in ETH)</div>
-        <div class="sc-subtitle">STOKED + VIBESTR + GVC + MOODS + OTC</div>
-        <div class="sc-big sell">181.21 ETH</div>
-        <div class="sc-detail">In: <span class="buy">432.23</span> &middot; Out: <span class="sell">181.21</span> &middot; Net: <span class="buy">-251.02</span></div>
-        <div class="sc-detail usdg">+ $263.89 USDG from STOKED</div>
-    </div>
+<!-- Flow explanation -->
+<div class="flow">
+    <strong>Token flow:</strong>
+    ETH <span class="arrow">&rarr;</span> buy <span class="buy">GVC</span> &amp; <span class="buy">VIBESTR</span>
+    <span class="arrow">&rarr;</span> Cryo Chamber (1 GVC = 3 MOODS)
+    <span class="arrow">&rarr;</span> some <span class="sell">MOODS sold</span> directly, most MOODS <span class="arrow">&rarr;</span> ANVIL <span class="arrow">&rarr;</span> <span class="sell">STOKED</span> <span class="arrow">&rarr;</span> sold for ETH/USDG.
+    No ETH was spent buying STOKED or MOODS. OTC: 50 VIBESTR sold off-chain for 10 ETH.
 </div>
 
-<div class="summary-cards" style="grid-template-columns:1fr"><div class="summary-card" style="border-color:#3d4450"><div class="sc-title">MOODS (10 sales)</div><div class="sc-subtitle">Sold on OpenSea (Robinhood chain)</div><div class="sc-big sell">0.8290 ETH</div></div></div>
-
-<div class="flow-note">
-    <strong>Token flow:</strong> ETH &rarr; buy GVC &amp; VIBESTR &rarr; Cryo Chamber (1 GVC = 3 MOODS) &rarr; some MOODS sold directly, most MOODS &rarr; ANVIL &rarr; STOKED &rarr; sold for ETH/USDG. No ETH was spent buying STOKED or MOODS directly.
-</div>
-
-<div class="footer">
-    <strong>Tracked Wallets:</strong><br>
-    IKZ1: <code>0xb206a73f101071f7a5027275ef52f827b2ea2b11</code><br>DGMD22: <code>0x2d13c884c4c418664abb1b4a7f491dd89247e42e</code><br>EraOfVibes: <code>0x662307a93bce119539a81408186bba28f01613cf</code><br>Extra25: <code>0x83e574af1bf5813f8552d434b213548e6bd4f35d</code><br>InvestmentFund1: <code>0xa1862a515fe0d692392fd1e51d7aeab674a6864b</code>
-    <br><br>
-    <strong>Data Sources:</strong> Etherscan V2 API (VIBESTR, GVC on Ethereum), Robinhood Chain (STOKED), OpenSea (MOODS), Manual (OTC)
+<div class="foot">
+    <strong>Wallets:</strong>
+    IKZ1: <code>0xb206a7...</code> &middot; DGMD22: <code>0x2d13c8...</code> &middot; EraOfVibes: <code>0x662307...</code> &middot; Extra25: <code>0x83e574...</code> &middot; InvestmentFund1: <code>0xa1862a...</code>
+    <br>Sources: Etherscan V2 (VIBESTR, GVC), Robinhood Chain (STOKED), OpenSea (MOODS), Manual (OTC)
 </div>
 
 </body>
