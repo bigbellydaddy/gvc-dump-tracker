@@ -426,7 +426,7 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
                 <td class="num sell">{t_gvc_sell:.2f}</td>
                 <td class="num sell">{t_stk_eth:.2f}</td>
                 <td class="num sell">{t_moods:.2f}</td>
-                <td class="num {'profit' if grand_net - OTC_ETH > 0 else 'loss'}">{grand_net - OTC_ETH:+.2f}<span class="usd-sub">{fmt_usd(abs(grand_net_usd - otc_usd))}</span></td>
+                <td class="num {'profit' if grand_net > 0 else 'loss'}">{grand_net:+.2f}<span class="usd-sub">{fmt_usd(abs(grand_net_usd))}</span></td>
             </tr>
         </tbody>
     </table>
