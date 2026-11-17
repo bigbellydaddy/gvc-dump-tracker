@@ -368,14 +368,14 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
     <div class="tk">
         <div class="tk-name">VIBESTR</div>
         <div class="tk-row"><span class="buy">In: {t_vib_buy:.2f}e</span><span class="sell">Out: {t_vib_sell:.2f}e</span></div>
-        <div class="tk-net {'sell' if vib_net > 0 else 'buy'}">Net: {vib_net:+.2f}e</div>
+        <div class="tk-net {'buy' if vib_net > 0 else 'sell'}">Net: {vib_net:+.2f}e</div>
         <div class="tk-usd">~{fmt_usd(abs(vib_net_usd))}</div>
         <div class="tk-detail">{t_vib_sell + OTC_ETH:.2f}e total w/ OTC</div>
     </div>
     <div class="tk">
         <div class="tk-name">GVC</div>
         <div class="tk-row"><span class="buy">In: {t_gvc_buy:.2f}e</span><span class="sell">Out: {t_gvc_sell:.2f}e</span></div>
-        <div class="tk-net {'sell' if gvc_net > 0 else 'buy'}">Net: {gvc_net:+.2f}e</div>
+        <div class="tk-net {'buy' if gvc_net > 0 else 'sell'}">Net: {gvc_net:+.2f}e</div>
         <div class="tk-usd">~{fmt_usd(abs(gvc_net_usd))}</div>
         <div class="tk-detail">{sum(s['gvc_n_buy'] for s in stats.values())} bought / {sum(s['gvc_n_sold'] for s in stats.values())} sold</div>
     </div>
