@@ -3,990 +3,348 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GVC Dump Tracker</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<title>DGMD Wallet Activity Report</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #0a0a0f;
-    color: #e0e0e0;
-    min-height: 100vh;
-  }
-  .header {
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-    padding: 24px 32px;
-    border-bottom: 1px solid #2a2a4a;
-  }
-  .header h1 { font-size: 24px; color: #fff; }
-  .header p { color: #888; font-size: 14px; margin-top: 4px; }
-  .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
-
-  .controls {
-    display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;
-  }
-  .time-filters { display: flex; gap: 4px; }
-  .time-btn {
-    background: #1a1a2e; border: 1px solid #2a2a4a; color: #888;
-    padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px;
-    transition: all 0.2s;
-  }
-  .time-btn:hover { color: #fff; border-color: #6366f1; }
-  .time-btn.active { background: #6366f1; color: #fff; border-color: #6366f1; }
-  .reload-btn {
-    background: #6366f1; color: #fff; border: none;
-    padding: 8px 20px; border-radius: 8px; cursor: pointer;
-    font-size: 13px; margin-left: auto;
-  }
-  .reload-btn:hover { background: #5558e6; }
-  .reload-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-  .status-bar {
-    background: #1a1a2e; padding: 8px 16px; border-radius: 8px;
-    margin-bottom: 16px; font-size: 13px; color: #888;
-  }
-  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
-  .dot.live { background: #00e676; animation: pulse 2s infinite; }
-  .dot.loading { background: #ffab40; }
-  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
-
-  .damage-banner {
-    background: linear-gradient(135deg, #1a0a0a, #2a1515);
-    border: 1px solid #ff5252;
-    border-radius: 12px; padding: 24px; margin-bottom: 24px;
-    text-align: center;
-  }
-  .damage-banner .label { font-size: 14px; color: #ff8a80; text-transform: uppercase; letter-spacing: 2px; }
-  .damage-banner .big-number { font-size: 48px; font-weight: 800; color: #ff5252; margin: 8px 0; }
-  .damage-banner .eth-val { font-size: 20px; color: #ffab40; margin-bottom: 4px; }
-  .damage-banner .sub { font-size: 13px; color: #888; }
-
-  .summary-cards {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px; margin-bottom: 24px;
-  }
-  .summary-card {
-    background: #12121f; border: 1px solid #2a2a4a;
-    border-radius: 12px; padding: 20px;
-  }
-  .summary-card .label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-  .summary-card .value { font-size: 28px; font-weight: 700; margin: 6px 0; }
-  .summary-card .eth { font-size: 14px; color: #ffab40; }
-  .summary-card .sub { font-size: 12px; color: #666; }
-  .profit { color: #00e676; }
-  .loss { color: #ff5252; }
-
-  .section {
-    background: #12121f; border: 1px solid #2a2a4a;
-    border-radius: 12px; padding: 24px; margin-bottom: 24px;
-  }
-  .section h2 { font-size: 16px; margin-bottom: 16px; color: #fff; }
-
-  .tab-bar {
-    display: flex; gap: 4px; margin-bottom: 16px;
-    border-bottom: 1px solid #2a2a4a;
-  }
-  .tab {
-    padding: 10px 20px; cursor: pointer; color: #888;
-    font-size: 14px; border-bottom: 2px solid transparent; transition: all 0.2s;
-  }
-  .tab:hover { color: #fff; }
-  .tab.active { color: #6366f1; border-bottom-color: #6366f1; }
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
-
-  .chart-container { position: relative; height: 350px; margin-bottom: 24px; }
-
-  .wallet-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+    background: #0d1117;
+    color: #c9d1d9;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+h1 {
+    color: #58a6ff;
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+.subtitle {
+    color: #8b949e;
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
-  }
-  .wallet-card {
-    background: #0a0a0f; border: 1px solid #2a2a4a;
-    border-radius: 10px; padding: 16px;
-  }
-  .wallet-card h3 { font-size: 15px; margin-bottom: 4px; }
-  .wallet-card .addr { font-family: monospace; font-size: 11px; color: #666; word-break: break-all; margin-bottom: 12px; }
-  .wallet-card .net-row {
-    display: flex; justify-content: space-between; padding: 4px 0;
+    margin-bottom: 32px;
+}
+.card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 16px;
+}
+.card .label {
+    color: #8b949e;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.card .value {
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 4px;
+}
+.card .sub {
+    color: #8b949e;
     font-size: 13px;
-  }
-  .wallet-card .detail-row {
-    display: flex; justify-content: space-between; padding: 2px 0;
-    font-size: 11px; color: #888;
-  }
-  .wallet-card .total-row {
-    margin-top: 12px; padding-top: 12px; border-top: 1px solid #2a2a4a;
-    display: flex; justify-content: space-between; font-weight: 700; font-size: 15px;
-  }
-
-  .filters {
-    display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
-  }
-  .filters select {
-    background: #1a1a2e; border: 1px solid #2a2a4a; color: #e0e0e0;
-    padding: 8px 12px; border-radius: 8px; font-size: 13px;
-  }
-
-  table { width: 100%; border-collapse: collapse; }
-  th {
-    text-align: left; padding: 12px; font-size: 11px; color: #888;
-    text-transform: uppercase; letter-spacing: 1px;
-    border-bottom: 1px solid #2a2a4a; cursor: pointer;
-  }
-  th:hover { color: #fff; }
-  td { padding: 12px; font-size: 13px; border-bottom: 1px solid #1a1a2e; }
-  tr:hover { background: #1a1a2e; }
-  .buy { color: #00e676; }
-  .sell { color: #ff5252; }
-  .wallet-tag { background: #2a2a4a; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-family: monospace; }
-  .token-tag { padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
-  .token-vibestr { background: #1a3a2a; color: #00e676; }
-  .token-stoked { background: #3a2a1a; color: #ffab40; }
-  .token-moods { background: #1a2a3a; color: #40c4ff; }
-  .token-gvc { background: #3a1a3a; color: #e040fb; }
-
-  .price-cards {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 12px; margin-bottom: 24px;
-  }
-  .price-card {
-    background: #12121f; border: 1px solid #2a2a4a;
-    border-radius: 10px; padding: 14px; text-align: center;
-  }
-  .price-card .token-name { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-  .price-card .price { font-size: 20px; font-weight: 700; margin: 4px 0; }
-  .price-card .change { font-size: 12px; }
-  .change.up { color: #00e676; }
-  .change.down { color: #ff5252; }
-
-  .est-note { font-size: 11px; color: #555; padding: 8px 0; }
-
-  @media (max-width: 768px) {
-    .container { padding: 12px; }
-    .damage-banner .big-number { font-size: 32px; }
-    .summary-cards { grid-template-columns: repeat(2, 1fr); }
-    .wallet-grid { grid-template-columns: 1fr; }
-    .filters { flex-direction: column; }
-    table { font-size: 12px; }
-    td, th { padding: 8px; }
-    .time-filters { flex-wrap: wrap; }
-  }
+    margin-top: 4px;
+}
+.eth { color: #58a6ff; }
+.sell { color: #f85149; }
+.buy { color: #3fb950; }
+.usdg { color: #d2a8ff; }
+.dim { color: #484f58; }
+.section {
+    margin-bottom: 32px;
+}
+.section h2 {
+    color: #f0f6fc;
+    font-size: 18px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #21262d;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+th {
+    text-align: left;
+    color: #8b949e;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-bottom: 1px solid #30363d;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #21262d;
+}
+tr:hover { background: #161b22; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.total-row {
+    font-weight: bold;
+    border-top: 2px solid #30363d;
+}
+.total-row td { padding-top: 12px; }
+.note {
+    background: #161b22;
+    border-left: 3px solid #d29922;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #8b949e;
+    margin-top: 16px;
+    border-radius: 0 6px 6px 0;
+}
+.note strong { color: #d29922; }
+.wallets {
+    font-size: 12px;
+    color: #484f58;
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid #21262d;
+}
+.wallets code {
+    background: #161b22;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+}
 </style>
 </head>
 <body>
+<h1>DGMD Wallet Activity Report</h1>
+<p class="subtitle">All-time activity across 5 tracked wallets &mdash; VIBESTR, GVC NFTs, STOKED</p>
 
-<div class="header">
-  <h1>GVC Ecosystem Dump Tracker</h1>
-  <p>Tracking on-chain swaps &amp; NFT sales across 5 wallets &mdash; VIBESTR, STOKED, MOODS, GoodVibesClub</p>
+<div class="cards">
+    <div class="card">
+        <div class="label">Total ETH Out (Sells)</div>
+        <div class="value sell">170.38 ETH</div>
+        <div class="sub">VIBESTR + GVC + STOKED</div>
+    </div>
+    <div class="card">
+        <div class="label">Total ETH In (Buys)</div>
+        <div class="value buy">432.23 ETH</div>
+        <div class="sub">VIBESTR + GVC buys only</div>
+    </div>
+    <div class="card">
+        <div class="label">Net ETH Flow</div>
+        <div class="value buy">-261.85 ETH</div>
+        <div class="sub">Invested net</div>
+    </div>
+    <div class="card">
+        <div class="label">GVC NFTs Sold</div>
+        <div class="value eth">243</div>
+        <div class="sub">+ 267 plain transfers</div>
+    </div>
 </div>
 
-<div class="container">
-  <div class="controls">
-    <div class="time-filters">
-      <button class="time-btn" data-range="30">1M</button>
-      <button class="time-btn" data-range="90">3M</button>
-      <button class="time-btn" data-range="150">5M</button>
-      <button class="time-btn" data-range="180">6M</button>
-      <button class="time-btn" data-range="365">1Y</button>
-      <button class="time-btn active" data-range="all">All</button>
-    </div>
-    <button class="reload-btn" id="reloadBtn" onclick="startLoading()">Reload Data</button>
-  </div>
-
-  <div class="status-bar" id="statusBar">
-    <span class="dot loading"></span> Initializing...
-  </div>
-
-  <div class="damage-banner" id="damageBanner">
-    <div class="label">Total ETH Extracted from GVC Ecosystem</div>
-    <div class="eth-val" id="damageEth" style="font-size:48px;font-weight:800;margin:8px 0;">-- ETH</div>
-    <div class="big-number" id="damageUsd" style="font-size:20px;font-weight:600;">--</div>
-    <div class="sub" id="damageSub">Loading swap data...</div>
-  </div>
-
-  <div class="summary-cards" style="grid-template-columns: repeat(3, 1fr);">
-    <div class="summary-card">
-      <div class="label">VIBESTR P&amp;L</div>
-      <div class="value" id="vibestrPnl">--</div>
-      <div class="sub" id="vibestrDetail">Loading...</div>
-    </div>
-    <div class="summary-card">
-      <div class="label">STOKED P&amp;L</div>
-      <div class="value" id="stokedPnl">--</div>
-      <div class="sub" id="stokedDetail">Loading...</div>
-    </div>
-    <div class="summary-card">
-      <div class="label">GVC NFT P&amp;L</div>
-      <div class="value" id="gvcPnl">--</div>
-      <div class="sub" id="gvcDetail">Loading...</div>
-    </div>
-  </div>
-  <div class="summary-cards" style="grid-template-columns: repeat(3, 1fr); margin-top: 12px;">
-    <div class="summary-card">
-      <div class="label">Total Bought (In)</div>
-      <div class="value" id="totalBoughtEth" style="color:#4caf50;">--</div>
-      <div class="sub" id="totalBoughtSub">Loading...</div>
-    </div>
-    <div class="summary-card">
-      <div class="label">Total Sold (Out)</div>
-      <div class="value loss" id="totalSoldEth">--</div>
-      <div class="sub" id="totalSoldSub">Loading...</div>
-    </div>
-    <div class="summary-card">
-      <div class="label">Net P&amp;L (All Tokens)</div>
-      <div class="value" id="netPnl">--</div>
-      <div class="eth" id="netPnlEth"></div>
-      <div class="sub" id="netPnlSub">Loading...</div>
-    </div>
-  </div>
-
-  <div class="price-cards">
-    <div class="price-card">
-      <div class="token-name">VIBESTR</div>
-      <div class="price" id="price-vibestr">--</div>
-      <div class="change" id="change-vibestr">Loading...</div>
-    </div>
-    <div class="price-card">
-      <div class="token-name">STOKED</div>
-      <div class="price" id="price-stoked">--</div>
-      <div class="change" id="change-stoked">Loading...</div>
-    </div>
-    <div class="price-card">
-      <div class="token-name">MOODS</div>
-      <div class="price" id="price-moods">--</div>
-      <div class="change" id="change-moods">Loading...</div>
-    </div>
-    <div class="price-card">
-      <div class="token-name">ETH</div>
-      <div class="price" id="price-eth">--</div>
-      <div class="change" id="change-eth">--</div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="tab-bar">
-      <div class="tab active" data-tab="timeline">Timeline</div>
-      <div class="tab" data-tab="wallets">Wallet Breakdown</div>
-      <div class="tab" data-tab="transactions">All Swaps</div>
-    </div>
-
-    <div class="tab-content active" id="tab-timeline">
-      <div class="chart-container"><canvas id="timelineChart"></canvas></div>
-      <div class="chart-container"><canvas id="volumeChart"></canvas></div>
-    </div>
-
-    <div class="tab-content" id="tab-wallets">
-      <div class="wallet-grid" id="walletGrid"></div>
-    </div>
-
-    <div class="tab-content" id="tab-transactions">
-      <div class="filters">
-        <select id="filterWallet">
-          <option value="all">All Wallets</option>
-          <option value="0xb206a73f101071f7a5027275ef52f827b2ea2b11">IKZ1</option>
-          <option value="0x2d13c884c4c418664abb1b4a7f491dd89247e42e">DGMD22</option>
-          <option value="0x662307a93bce119539a81408186bba28f01613cf">EraOfVibes</option>
-          <option value="0x83e574af1bf5813f8552d434b213548e6bd4f35d">Extra25</option>
-          <option value="0xa1862a515fe0d692392fd1e51d7aeab674a6864b">InvestmentFund1</option>
-        </select>
-        <select id="filterToken">
-          <option value="all">All Tokens</option>
-          <option value="vibestr">VIBESTR</option>
-          <option value="stoked">STOKED</option>
-          <option value="moods">MOODS</option>
-          <option value="gvc">GVC NFT</option>
-        </select>
-        <select id="filterType">
-          <option value="sell">Sells Only</option>
-          <option value="all">Buys & Sells</option>
-          <option value="buy">Buys Only</option>
-        </select>
-      </div>
-      <div style="overflow-x:auto;">
-        <table>
-          <thead>
+<div class="section">
+    <h2>VIBESTR Token</h2>
+    <table>
+        <thead>
             <tr>
-              <th>Date</th>
-              <th>Wallet</th>
-              <th>Token</th>
-              <th>Type</th>
-              <th>Amount</th>
-              <th>Value (ETH)</th>
-              <th>Value (USD)</th>
-              <th>Tx</th>
+                <th>Wallet</th>
+                <th class="num">Sells</th>
+                <th class="num">ETH Received</th>
+                <th class="num">Buys</th>
+                <th class="num">ETH Spent</th>
+                <th class="num">Transfers</th>
             </tr>
-          </thead>
-          <tbody id="txBody"></tbody>
-        </table>
-        <div class="est-note">* = estimated from current price (no on-chain value pair found)</div>
-      </div>
-    </div>
-  </div>
+        </thead>
+        <tbody>
+            <tr>
+                <td>IKZ1</td>
+                <td class="num">23</td>
+                <td class="num eth">102.4680</td>
+                <td class="num">16</td>
+                <td class="num eth">49.5769</td>
+                <td class="num dim">0</td>
+            </tr><tr>
+                <td>DGMD22</td>
+                <td class="num">6</td>
+                <td class="num eth">14.6252</td>
+                <td class="num">12</td>
+                <td class="num eth">28.7233</td>
+                <td class="num dim">6</td>
+            </tr><tr>
+                <td>EraOfVibes</td>
+                <td class="num">5</td>
+                <td class="num eth">5.8358</td>
+                <td class="num">8</td>
+                <td class="num eth">13.5800</td>
+                <td class="num dim">0</td>
+            </tr><tr>
+                <td>Extra25</td>
+                <td class="num">1</td>
+                <td class="num eth">0.0244</td>
+                <td class="num">5</td>
+                <td class="num eth">6.7700</td>
+                <td class="num dim">3</td>
+            </tr><tr>
+                <td>InvestmentFund1</td>
+                <td class="num">3</td>
+                <td class="num eth">3.3873</td>
+                <td class="num">4</td>
+                <td class="num eth">6.6800</td>
+                <td class="num dim">0</td>
+            </tr>
+            <tr class="total-row">
+                <td>TOTAL</td>
+                <td class="num">38</td>
+                <td class="num eth">126.3408</td>
+                <td class="num">45</td>
+                <td class="num eth">105.3301</td>
+                <td class="num dim">9</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 
-<script>
-const WALLETS = {
-  '0xb206a73f101071f7a5027275ef52f827b2ea2b11': 'IKZ1',
-  '0x2d13c884c4c418664abb1b4a7f491dd89247e42e': 'DGMD22',
-  '0x662307a93bce119539a81408186bba28f01613cf': 'EraOfVibes',
-  '0x83e574af1bf5813f8552d434b213548e6bd4f35d': 'Extra25',
-  '0xa1862a515fe0d692392fd1e51d7aeab674a6864b': 'InvestmentFund1'
-};
-const WALLET_SET = new Set(Object.keys(WALLETS).map(a => a.toLowerCase()));
-
-const TOKENS = {
-  vibestr: { address: '0xd0cc2b0efb168bfe1f94a948d8df70fa10257196', chain: 'ethereum', symbol: 'VIBESTR' },
-  stoked:  { address: '0xb76b35647cabf3b6aaf90fec374c58038478d12f', chain: 'robinhood', symbol: 'STOKED' },
-  moods:   { address: '0xa6ebbdfcfeafdc7a5a778d6fe514f45bd0a0133d', chain: 'robinhood', symbol: 'MOODS' },
-  gvc:     { address: '0xb8ea78fcacef50d41375e44e6814ebba36bb33c4', chain: 'ethereum', symbol: 'GVC', isNFT: true }
-};
-const TOKEN_ADDR_MAP = {};
-for (const [key, t] of Object.entries(TOKENS)) {
-  TOKEN_ADDR_MAP[t.address.toLowerCase()] = key;
-}
-
-const VALUE_TOKENS = new Set(['weth', 'eth', 'usdg', 'usdc', 'usdt', 'dai']);
-const STABLECOINS = new Set(['usdg', 'usdc', 'usdt', 'dai']);
-
-const BLOCKSCOUT = {
-  ethereum: 'https://eth.blockscout.com/api/v2',
-  robinhood: 'https://robinhoodchain.blockscout.com/api/v2'
-};
-const EXPLORER = {
-  ethereum: 'https://eth.blockscout.com/tx/',
-  robinhood: 'https://robinhoodchain.blockscout.com/tx/'
-};
-
-let allSwaps = [];
-let filteredSwaps = [];
-let prices = {};
-let ethPrice = 2500;
-let timelineChart = null;
-let volumeChart = null;
-let activeRange = 'all';
-
-// Tab switching
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
-  });
-});
-
-// Time range buttons
-document.querySelectorAll('.time-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeRange = btn.dataset.range;
-    applyTimeFilter();
-  });
-});
-
-document.querySelectorAll('.filters select').forEach(s => s.addEventListener('change', renderTable));
-
-function setStatus(msg, type = 'loading') {
-  document.getElementById('statusBar').innerHTML = `<span class="dot ${type}"></span> ${msg}`;
-}
-function shortAddr(a) { return a ? a.slice(0,6) + '...' + a.slice(-4) : ''; }
-function walletName(a) { return WALLETS[a?.toLowerCase()] || shortAddr(a); }
-function formatUsd(n) {
-  if (n == null || isNaN(n)) return '--';
-  if (Math.abs(n) >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
-  if (Math.abs(n) >= 1e3) return '$' + (n/1e3).toFixed(2) + 'K';
-  return '$' + n.toFixed(2);
-}
-function formatEth(n) {
-  if (n == null || isNaN(n)) return '--';
-  if (Math.abs(n) >= 100) return n.toFixed(2) + ' ETH';
-  if (Math.abs(n) >= 1) return n.toFixed(4) + ' ETH';
-  return n.toFixed(6) + ' ETH';
-}
-function formatNum(n) {
-  if (n == null || isNaN(n)) return '--';
-  if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(2) + 'M';
-  if (Math.abs(n) >= 1e3) return (n/1e3).toFixed(2) + 'K';
-  return n < 0.01 && n > 0 ? n.toFixed(6) : n.toFixed(2);
-}
-
-function applyTimeFilter() {
-  if (activeRange === 'all') {
-    filteredSwaps = [...allSwaps];
-  } else {
-    const days = parseInt(activeRange);
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
-    filteredSwaps = allSwaps.filter(t => t.date >= cutoff);
-  }
-  renderAll();
-}
-
-function getSwapEthValue(t) {
-  if (t.valueAmount && t.valueToken) {
-    if (STABLECOINS.has(t.valueToken.toLowerCase())) {
-      return t.valueAmount / ethPrice;
-    } else if (t.valueToken === 'ETH' || t.valueToken === 'WETH') {
-      return t.valueAmount;
-    }
-  }
-  const tokenPrice = prices[t.token]?.usd || 0;
-  return (t.amount * tokenPrice) / ethPrice;
-}
-
-function getSwapUsdValue(t) {
-  if (t.valueAmount && t.valueToken) {
-    if (STABLECOINS.has(t.valueToken.toLowerCase())) {
-      return t.valueAmount;
-    } else if (t.valueToken === 'ETH' || t.valueToken === 'WETH') {
-      return t.valueAmount * ethPrice;
-    }
-  }
-  return t.amount * (prices[t.token]?.usd || 0);
-}
-
-async function fetchPrices() {
-  for (const [key, token] of Object.entries(TOKENS)) {
-    if (token.isNFT) continue;
-    try {
-      const r = await fetch('https://api.dexscreener.com/latest/dex/tokens/' + token.address);
-      const d = await r.json();
-      if (d.pairs?.length) {
-        prices[key] = {
-          usd: parseFloat(d.pairs[0].priceUsd) || 0,
-          change24h: parseFloat(d.pairs[0].priceChange?.h24) || 0
-        };
-      }
-    } catch (e) { console.warn(key + ' price failed:', e); }
-  }
-
-  try {
-    const r = await fetch('https://api.dexscreener.com/latest/dex/pairs/ethereum/0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640');
-    const d = await r.json();
-    if (d.pair) {
-      ethPrice = parseFloat(d.pair.priceUsd) || 2500;
-      const el = document.getElementById('price-eth');
-      if (el) el.textContent = '$' + ethPrice.toFixed(0);
-    }
-  } catch (e) { ethPrice = 2500; }
-
-  updatePriceCards();
-}
-
-function updatePriceCards() {
-  for (const [key, data] of Object.entries(prices)) {
-    const pe = document.getElementById('price-' + key);
-    const ce = document.getElementById('change-' + key);
-    if (pe) pe.textContent = '$' + (data.usd < 0.01 ? data.usd.toFixed(6) : data.usd.toFixed(4));
-    if (ce) {
-      ce.textContent = (data.change24h >= 0 ? '+' : '') + data.change24h.toFixed(2) + '% (24h)';
-      ce.className = 'change ' + (data.change24h >= 0 ? 'up' : 'down');
-    }
-  }
-}
-
-const fetchQueue = [];
-let fetchRunning = false;
-
-async function rateLimitedFetch(url, retries = 3) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 15000);
-      const r = await fetch(url, { signal: ctrl.signal });
-      clearTimeout(timer);
-      if (r.status === 429) {
-        const wait = 3000 * (i + 1);
-        console.warn('Rate limited, waiting ' + wait + 'ms...');
-        await new Promise(res => setTimeout(res, wait));
-        continue;
-      }
-      return r;
-    } catch (e) {
-      if (i < retries - 1) await new Promise(res => setTimeout(res, 2000));
-    }
-  }
-  return null;
-}
-
-async function fetchBlockscoutTransfers(baseUrl, wallet, tokenAddr, maxPages = 15) {
-  let all = [];
-  let nextParams = null;
-  for (let p = 0; p < maxPages; p++) {
-    let url = baseUrl + '/addresses/' + wallet + '/token-transfers?token=' + tokenAddr;
-    if (nextParams) url += '&' + new URLSearchParams(nextParams).toString();
-    try {
-      const r = await rateLimitedFetch(url);
-      if (!r || !r.ok) break;
-      const d = await r.json();
-      if (d.items) all = all.concat(d.items);
-      if (d.next_page_params) nextParams = d.next_page_params;
-      else break;
-    } catch (e) { console.warn('Fetch error:', e); break; }
-    await new Promise(r => setTimeout(r, 800));
-  }
-  return all;
-}
-
-async function fetchTxTokenTransfers(baseUrl, txHash) {
-  try {
-    const r = await rateLimitedFetch(baseUrl + '/transactions/' + txHash + '/token-transfers');
-    if (!r || !r.ok) return [];
-    const d = await r.json();
-    return d.items || [];
-  } catch (e) { return []; }
-}
-
-async function processWalletToken(wallet, tokenKey) {
-  const token = TOKENS[tokenKey];
-  const baseUrl = BLOCKSCOUT[token.chain];
-  const walletLower = wallet.toLowerCase();
-  const swaps = [];
-
-  const transfers = await fetchBlockscoutTransfers(baseUrl, wallet, token.address);
-
-  const byTx = {};
-  for (const t of transfers) {
-    const hash = t.transaction_hash;
-    if (!byTx[hash]) byTx[hash] = [];
-    byTx[hash].push(t);
-  }
-
-  const txHashes = Object.keys(byTx);
-  let fetched = 0;
-
-  for (const hash of txHashes) {
-    const tokenTransfers = byTx[hash];
-
-    for (const tt of tokenTransfers) {
-      const from = (tt.from?.hash || '').toLowerCase();
-      const to = (tt.to?.hash || '').toLowerCase();
-      const decimals = parseInt(tt.total?.decimals || tt.token?.decimals || 18);
-      const rawVal = tt.total?.value || '0';
-
-      let amount;
-      if (token.isNFT) {
-        // For ERC-721, each transfer is 1 NFT. For ERC-1155 the value is the count.
-        const tokenType = tt.token?.type || '';
-        if (tokenType === 'ERC-1155') {
-          amount = parseFloat(rawVal) / Math.pow(10, decimals);
-          if (amount === 0) amount = 1;
-        } else {
-          amount = 1;
-        }
-      } else {
-        amount = parseFloat(rawVal) / Math.pow(10, decimals);
-      }
-
-      // Skip transfers between tracked wallets
-      if (WALLET_SET.has(from) && WALLET_SET.has(to)) continue;
-      if (amount === 0 && !token.isNFT) continue;
-
-      const isSell = from === walletLower;
-      const isBuy = to === walletLower;
-      if (!isSell && !isBuy) continue;
-
-      let valueAmount = null;
-      let valueToken = null;
-
-      // Per-tx value lookups for both buys and sells (for full PNL tracking)
-      if (fetched < 40) {
-        try {
-          const allTxTransfers = await fetchTxTokenTransfers(baseUrl, hash);
-          fetched++;
-          await new Promise(r => setTimeout(r, 1000));
-
-          for (const at of allTxTransfers) {
-            const atSym = (at.token?.symbol || '').toLowerCase();
-            const atFrom = (at.from?.hash || '').toLowerCase();
-            const atTo = (at.to?.hash || '').toLowerCase();
-
-            if (!VALUE_TOKENS.has(atSym)) continue;
-
-            const atDecimals = parseInt(at.total?.decimals || at.token?.decimals || 18);
-            const atAmount = parseFloat(at.total?.value || '0') / Math.pow(10, atDecimals);
-            if (atAmount === 0) continue;
-
-            if (isSell && atTo === walletLower) {
-              valueAmount = atAmount;
-              valueToken = STABLECOINS.has(atSym) ? atSym.toUpperCase() : 'ETH';
-              break;
-            }
-            if (isBuy && atFrom === walletLower) {
-              valueAmount = atAmount;
-              valueToken = STABLECOINS.has(atSym) ? atSym.toUpperCase() : 'ETH';
-              break;
-            }
-          }
-        } catch (e) { /* skip */ }
-      }
-
-      // For NFT trades, also check native ETH value on the transaction
-      if (token.isNFT && !valueAmount && fetched < 40) {
-        try {
-          const txResp = await rateLimitedFetch(baseUrl + '/transactions/' + hash);
-          fetched++;
-          await new Promise(r => setTimeout(r, 1000));
-          if (txResp && txResp.ok) {
-            const txData = await txResp.json();
-            const ethVal = parseFloat(txData.value || '0') / 1e18;
-            if (ethVal > 0.0001) {
-              valueAmount = ethVal;
-              valueToken = 'ETH';
-            }
-          }
-        } catch (e) { /* skip */ }
-      }
-
-      swaps.push({
-        date: new Date(tt.timestamp),
-        wallet: walletLower,
-        walletName: walletName(wallet),
-        token: tokenKey,
-        symbol: token.symbol,
-        type: isSell ? 'sell' : 'buy',
-        amount,
-        valueAmount,
-        valueToken,
-        hash,
-        chain: token.chain,
-        explorerUrl: EXPLORER[token.chain] + hash
-      });
-    }
-  }
-  return swaps;
-}
-
-async function loadAllData() {
-  const btn = document.getElementById('reloadBtn');
-  btn.disabled = true;
-  allSwaps = [];
-  const walletAddrs = Object.keys(WALLETS);
-  let step = 0;
-  const totalSteps = walletAddrs.length * Object.keys(TOKENS).length;
-
-  for (const wallet of walletAddrs) {
-    for (const [tokenKey, token] of Object.entries(TOKENS)) {
-      step++;
-      setStatus(`Scanning ${token.symbol} for ${WALLETS[wallet]}... (${step}/${totalSteps})`);
-      try {
-        const swaps = await processWalletToken(wallet, tokenKey);
-        allSwaps = allSwaps.concat(swaps);
-      } catch (e) {
-        console.warn(`Error loading ${token.symbol} for ${WALLETS[wallet]}:`, e);
-      }
-    }
-  }
-
-  allSwaps.sort((a, b) => b.date - a.date);
-
-  const seen = new Set();
-  allSwaps = allSwaps.filter(tx => {
-    const key = tx.hash + '-' + tx.token + '-' + tx.type + '-' + tx.wallet;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-
-  setStatus(`Loaded ${allSwaps.length} swaps across ${walletAddrs.length} wallets`, 'live');
-  btn.disabled = false;
-  applyTimeFilter();
-}
-
-function renderAll() {
-  renderDamage();
-  renderSummary();
-  renderTable();
-  renderTimeline();
-  renderVolume();
-  renderWallets();
-}
-
-function renderDamage() {
-  const sells = filteredSwaps.filter(t => t.type === 'sell');
-
-  let sellEth = 0, sellUsd = 0;
-  for (const t of sells) { sellEth += getSwapEthValue(t); sellUsd += getSwapUsdValue(t); }
-
-  document.getElementById('damageEth').textContent = formatEth(sellEth);
-  document.getElementById('damageUsd').textContent = formatUsd(sellUsd);
-
-  const rangeLabel = activeRange === 'all' ? 'all time' : activeRange + ' days';
-  document.getElementById('damageSub').textContent =
-    `${sells.length} sell transactions across 5 wallets (${rangeLabel}). OTC/off-chain sales not included.`;
-}
-
-function renderSummary() {
-  const sells = filteredSwaps.filter(t => t.type === 'sell');
-  const buys = filteredSwaps.filter(t => t.type === 'buy');
-
-  // Per-token full breakdowns (buys + sells)
-  const tokens = { stoked: { sellEth: 0, buyEth: 0, sellUsd: 0, buyUsd: 0, sellCount: 0, buyCount: 0 },
-                   vibestr: { sellEth: 0, buyEth: 0, sellUsd: 0, buyUsd: 0, sellCount: 0, buyCount: 0 },
-                   gvc:     { sellEth: 0, buyEth: 0, sellUsd: 0, buyUsd: 0, sellCount: 0, buyCount: 0 } };
-  for (const t of filteredSwaps) {
-    const key = t.token;
-    if (!tokens[key]) continue;
-    const eth = getSwapEthValue(t);
-    const usd = getSwapUsdValue(t);
-    if (t.type === 'sell') {
-      tokens[key].sellEth += eth; tokens[key].sellUsd += usd; tokens[key].sellCount++;
-    } else {
-      tokens[key].buyEth += eth; tokens[key].buyUsd += usd; tokens[key].buyCount++;
-    }
-  }
-
-  // Per-token PNL cards
-  for (const [key, label, isNft] of [['vibestr','VIBESTR',false], ['stoked','STOKED',false], ['gvc','GVC',true]]) {
-    const d = tokens[key];
-    const pnl = d.sellEth - d.buyEth;
-    const pnlEl = document.getElementById(key + 'Pnl');
-    pnlEl.textContent = (pnl >= 0 ? '+' : '') + formatEth(pnl);
-    pnlEl.className = 'value ' + (pnl >= 0 ? 'profit' : 'loss');
-    const sellLabel = isNft ? d.sellCount + ' NFTs sold' : d.sellCount + ' sells';
-    const buyLabel = isNft ? d.buyCount + ' NFTs bought' : d.buyCount + ' buys';
-    document.getElementById(key + 'Detail').innerHTML =
-      `<span style="color:#ff5252;">Sold: ${formatEth(d.sellEth)} (${sellLabel})</span><br>` +
-      `<span style="color:#4caf50;">Bought: ${formatEth(d.buyEth)} (${buyLabel})</span>`;
-  }
-
-  // Totals
-  let buyEth = 0, buyUsd = 0, sellEth = 0, sellUsd = 0;
-  for (const t of sells) { sellEth += getSwapEthValue(t); sellUsd += getSwapUsdValue(t); }
-  for (const t of buys) { buyEth += getSwapEthValue(t); buyUsd += getSwapUsdValue(t); }
-
-  document.getElementById('totalBoughtEth').textContent = formatEth(buyEth);
-  document.getElementById('totalBoughtSub').textContent = buys.length + ' buy txs / ' + formatUsd(buyUsd);
-  document.getElementById('totalSoldEth').textContent = formatEth(sellEth);
-  document.getElementById('totalSoldSub').textContent = sells.length + ' sell txs / ' + formatUsd(sellUsd);
-
-  const pnlEth = sellEth - buyEth;
-  const pnlUsd = sellUsd - buyUsd;
-  const pnlEl = document.getElementById('netPnl');
-  pnlEl.textContent = (pnlEth >= 0 ? '+' : '') + formatEth(pnlEth);
-  pnlEl.className = 'value ' + (pnlEth >= 0 ? 'profit' : 'loss');
-  document.getElementById('netPnlEth').textContent = (pnlUsd >= 0 ? '+' : '') + formatUsd(pnlUsd);
-  document.getElementById('netPnlSub').textContent = sells.length + ' sells / ' + buys.length + ' buys';
-}
-
-function renderTable() {
-  const wf = document.getElementById('filterWallet').value;
-  const tf = document.getElementById('filterToken').value;
-  const tyf = document.getElementById('filterType').value;
-
-  let data = filteredSwaps;
-  if (wf !== 'all') data = data.filter(t => t.wallet === wf);
-  if (tf !== 'all') data = data.filter(t => t.token === tf);
-  if (tyf !== 'all') data = data.filter(t => t.type === tyf);
-
-  const tbody = document.getElementById('txBody');
-  tbody.innerHTML = '';
-
-  if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#666;padding:40px;">No swaps found</td></tr>';
-    return;
-  }
-
-  for (const tx of data.slice(0, 500)) {
-    const ethVal = getSwapEthValue(tx);
-    const usdVal = getSwapUsdValue(tx);
-
-    let ethDisplay = ethVal > 0 ? formatEth(ethVal) : '--';
-    let usdDisplay = usdVal > 0 ? formatUsd(usdVal) : '--';
-
-    if (!tx.valueAmount && ethVal > 0) {
-      ethDisplay += ' *';
-      usdDisplay += ' *';
-    }
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${tx.date.toLocaleDateString()} ${tx.date.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</td>
-      <td><span class="wallet-tag">${tx.walletName}</span></td>
-      <td><span class="token-tag token-${tx.token}">${tx.symbol}</span></td>
-      <td class="${tx.type}">${tx.type.toUpperCase()}</td>
-      <td>${tx.token === 'gvc' ? tx.amount + ' NFT' : formatNum(tx.amount)}</td>
-      <td>${ethDisplay}</td>
-      <td>${usdDisplay}</td>
-      <td><a href="${tx.explorerUrl}" target="_blank" style="color:#6366f1;">${shortAddr(tx.hash)}</a></td>
-    `;
-    tbody.appendChild(tr);
-  }
-
-  if (data.length > 500) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="8" style="text-align:center;color:#666;padding:12px;">Showing 500 of ${data.length} swaps</td>`;
-    tbody.appendChild(tr);
-  }
-}
-
-function renderTimeline() {
-  const ctx = document.getElementById('timelineChart').getContext('2d');
-  const sellsByDay = {};
-
-  for (const t of filteredSwaps) {
-    if (t.type !== 'sell') continue;
-    const day = t.date.toISOString().split('T')[0];
-    if (!sellsByDay[day]) sellsByDay[day] = { eth: 0, usd: 0 };
-    sellsByDay[day].eth += getSwapEthValue(t);
-    sellsByDay[day].usd += getSwapUsdValue(t);
-  }
-
-  const days = Object.keys(sellsByDay).sort();
-
-  if (timelineChart) timelineChart.destroy();
-  timelineChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: days,
-      datasets: [
-        { label: 'Sells (ETH)', data: days.map(d => sellsByDay[d].eth), backgroundColor: 'rgba(255,82,82,0.7)', borderColor: '#ff5252', borderWidth: 1 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        title: { display: true, text: 'Daily Sell Volume (ETH)', color: '#fff' },
-        legend: { labels: { color: '#888' } },
-        tooltip: { callbacks: {
-          label: ctx => formatEth(ctx.raw),
-          afterLabel: ctx => formatUsd(sellsByDay[days[ctx.dataIndex]].usd)
-        } }
-      },
-      scales: {
-        x: { type: 'time', time: { unit: 'day' }, ticks: { color: '#666' }, grid: { color: '#1a1a2e' } },
-        y: { ticks: { color: '#666', callback: v => v.toFixed(2) + ' ETH' }, grid: { color: '#1a1a2e' } }
-      }
-    }
-  });
-}
-
-function renderVolume() {
-  const ctx = document.getElementById('volumeChart').getContext('2d');
-  const vol = {};
-  for (const t of filteredSwaps) {
-    if (t.type !== 'sell') continue;
-    if (!vol[t.symbol]) vol[t.symbol] = { eth: 0, usd: 0, count: 0 };
-    vol[t.symbol].eth += getSwapEthValue(t);
-    vol[t.symbol].usd += getSwapUsdValue(t);
-    vol[t.symbol].count++;
-  }
-  const labels = Object.keys(vol);
-
-  if (volumeChart) volumeChart.destroy();
-  volumeChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels,
-      datasets: [
-        { label: 'Sold (ETH)', data: labels.map(l => vol[l].eth), backgroundColor: [
-          'rgba(255,171,64,0.7)', 'rgba(0,230,118,0.7)', 'rgba(64,196,255,0.7)', 'rgba(224,64,251,0.7)'
-        ] }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        title: { display: true, text: 'ETH Extracted by Token (Sells Only)', color: '#fff' },
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => formatEth(ctx.raw),
-            afterLabel: ctx => {
-              const sym = labels[ctx.dataIndex];
-              return formatUsd(vol[sym].usd) + ' (' + vol[sym].count + ' sells)';
-            }
-          }
-        }
-      },
-      scales: {
-        x: { ticks: { color: '#666' }, grid: { color: '#1a1a2e' } },
-        y: { ticks: { color: '#666', callback: v => v.toFixed(2) + ' ETH' }, grid: { color: '#1a1a2e' } }
-      }
-    }
-  });
-}
-
-function renderWallets() {
-  const grid = document.getElementById('walletGrid');
-  grid.innerHTML = '';
-
-  for (const [addr, name] of Object.entries(WALLETS)) {
-    const txs = filteredSwaps.filter(t => t.wallet === addr.toLowerCase());
-    const tokenData = {};
-    let walletSoldUsd = 0, walletBoughtUsd = 0;
-    let walletSoldEth = 0, walletBoughtEth = 0;
-
-    for (const t of txs) {
-      if (!tokenData[t.symbol]) tokenData[t.symbol] = {
-        boughtUsd: 0, soldUsd: 0, boughtEth: 0, soldEth: 0,
-        boughtCount: 0, soldCount: 0, boughtAmt: 0, soldAmt: 0, token: t.token
-      };
-      const usd = getSwapUsdValue(t);
-      const eth = getSwapEthValue(t);
-
-      if (t.type === 'buy') {
-        tokenData[t.symbol].boughtUsd += usd;
-        tokenData[t.symbol].boughtEth += eth;
-        tokenData[t.symbol].boughtCount++;
-        tokenData[t.symbol].boughtAmt += t.amount;
-        walletBoughtUsd += usd;
-        walletBoughtEth += eth;
-      } else {
-        tokenData[t.symbol].soldUsd += usd;
-        tokenData[t.symbol].soldEth += eth;
-        tokenData[t.symbol].soldCount++;
-        tokenData[t.symbol].soldAmt += t.amount;
-        walletSoldUsd += usd;
-        walletSoldEth += eth;
-      }
-    }
-
-    const netUsd = walletSoldUsd - walletBoughtUsd;
-    const netEth = walletSoldEth - walletBoughtEth;
-
-    let rows = '';
-    for (const [sym, d] of Object.entries(tokenData)) {
-      if (d.soldCount === 0 && d.boughtCount === 0) continue;
-      const isNft = d.token === 'gvc';
-      rows += `
-        <div class="net-row">
-          <span><span class="token-tag token-${d.token}">${sym}</span></span>
-          <span class="sell">${isNft ? d.soldCount + ' NFT' : formatNum(d.soldAmt)} sold (${d.soldCount})</span>
-        </div>
-        <div class="detail-row">
-          <span>Sold: ${formatEth(d.soldEth)} / ${formatUsd(d.soldUsd)}</span>
-          <span>Bought: ${formatEth(d.boughtEth)} / ${formatUsd(d.boughtUsd)}</span>
-        </div>
-      `;
-    }
-    if (!rows) rows = '<div style="color:#666;font-size:13px;padding:8px 0;">No sells detected</div>';
-
-    const card = document.createElement('div');
-    card.className = 'wallet-card';
-    card.innerHTML = `
-      <h3>${name} <span style="font-size:13px;color:#ff5252;">${formatEth(walletSoldEth)} sold</span></h3>
-      <div class="addr">${addr}</div>
-      ${rows}
-      <div class="total-row">
-        <span class="loss">Sold: ${formatEth(walletSoldEth)}</span>
-        <span style="font-size:12px;color:#888;">PNL: <span class="${netEth > 0 ? 'loss' : 'profit'}">${netEth > 0 ? '-' : '+'}${formatEth(Math.abs(netEth))}</span></span>
-      </div>
-    `;
-    grid.appendChild(card);
-  }
-}
-
-async function startLoading() {
-  setStatus('Fetching prices and swap data...');
-  await fetchPrices();
-  await loadAllData();
-}
-
-window.addEventListener('DOMContentLoaded', startLoading);
-</script>
+<div class="section">
+    <h2>GVC NFTs</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Wallet</th>
+                <th class="num">NFTs Sold</th>
+                <th class="num">ETH Received</th>
+                <th class="num">Buys</th>
+                <th class="num">ETH Spent</th>
+                <th class="num">Transfers</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>IKZ1</td>
+                <td class="num">48 NFTs</td>
+                <td class="num eth">3.1395</td>
+                <td class="num">81</td>
+                <td class="num eth">62.0363</td>
+                <td class="num dim">53</td>
+            </tr><tr>
+                <td>DGMD22</td>
+                <td class="num">10 NFTs</td>
+                <td class="num eth">0.5508</td>
+                <td class="num">210</td>
+                <td class="num eth">140.3110</td>
+                <td class="num dim">121</td>
+            </tr><tr>
+                <td>EraOfVibes</td>
+                <td class="num">65 NFTs</td>
+                <td class="num eth">12.0300</td>
+                <td class="num">59</td>
+                <td class="num eth">56.3680</td>
+                <td class="num dim">24</td>
+            </tr><tr>
+                <td>Extra25</td>
+                <td class="num">65 NFTs</td>
+                <td class="num eth">12.6800</td>
+                <td class="num">40</td>
+                <td class="num eth">19.3195</td>
+                <td class="num dim">24</td>
+            </tr><tr>
+                <td>InvestmentFund1</td>
+                <td class="num">55 NFTs</td>
+                <td class="num eth">6.8991</td>
+                <td class="num">60</td>
+                <td class="num eth">48.8682</td>
+                <td class="num dim">45</td>
+            </tr>
+            <tr class="total-row">
+                <td>TOTAL</td>
+                <td class="num">243 NFTs</td>
+                <td class="num eth">35.2994</td>
+                <td class="num">450</td>
+                <td class="num eth">326.9030</td>
+                <td class="num dim">267</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="note">
+        <strong>Note:</strong> Only NFT sales where ETH was received are counted as "sells."
+        Plain transfers (wallet-to-wallet, Cryo Chamber swaps) are excluded from sell totals.
+    </div>
+</div>
+
+<div class="section">
+    <h2>STOKED Token (Robinhood Chain)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Wallet</th>
+                <th class="num">ETH Sells</th>
+                <th class="num">ETH Received</th>
+                <th class="num">USDG Sells</th>
+                <th class="num">USDG Received</th>
+                <th class="num">Transfers</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>IKZ1</td>
+                <td class="num">6</td>
+                <td class="num eth">1.9110</td>
+                <td class="num">0</td>
+                <td class="num usdg">$0.00</td>
+                <td class="num dim">0</td>
+            </tr><tr>
+                <td>DGMD22</td>
+                <td class="num">4</td>
+                <td class="num eth">0.8842</td>
+                <td class="num">1</td>
+                <td class="num usdg">$263.89</td>
+                <td class="num dim">38</td>
+            </tr><tr>
+                <td>EraOfVibes</td>
+                <td class="num">6</td>
+                <td class="num eth">1.3150</td>
+                <td class="num">0</td>
+                <td class="num usdg">$0.00</td>
+                <td class="num dim">0</td>
+            </tr><tr>
+                <td>Extra25</td>
+                <td class="num">4</td>
+                <td class="num eth">1.3106</td>
+                <td class="num">0</td>
+                <td class="num usdg">$0.00</td>
+                <td class="num dim">0</td>
+            </tr><tr>
+                <td>InvestmentFund1</td>
+                <td class="num">4</td>
+                <td class="num eth">3.3232</td>
+                <td class="num">0</td>
+                <td class="num usdg">$0.00</td>
+                <td class="num dim">0</td>
+            </tr>
+            <tr class="total-row">
+                <td>TOTAL</td>
+                <td class="num">24</td>
+                <td class="num eth">8.7440</td>
+                <td class="num">1</td>
+                <td class="num usdg">$263.89</td>
+                <td class="num dim">38</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="note">
+        <strong>Note:</strong> STOKED was obtained by swapping 80 GVC for 240 MOODS via "Cryo Chamber" &mdash; no ETH was spent buying STOKED.
+        Some sells routed to USDG stablecoin instead of ETH.
+    </div>
+</div>
+
+<div class="wallets">
+    <strong>Tracked Wallets:</strong><br>
+    IKZ1: <code>0xb206a73f101071f7a5027275ef52f827b2ea2b11</code><br>
+    DGMD22: <code>0x2d13c884c4c418664abb1b4a7f491dd89247e42e</code><br>
+    EraOfVibes: <code>0x662307a93bce119539a81408186bba28f01613cf</code><br>
+    Extra25: <code>0x83e574af1bf5813f8552d434b213548e6bd4f35d</code><br>
+    InvestmentFund1: <code>0xa1862a515fe0d692392fd1e51d7aeab674a6864b</code>
+</div>
 </body>
 </html>
