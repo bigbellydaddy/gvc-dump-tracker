@@ -20,6 +20,13 @@ OTC_SALES = [
 ]
 OTC_ETH = sum(s['total'] for s in OTC_SALES)
 
+# Current holdings (checked on-chain 2026-11-17)
+HOLDINGS_GVC = 178          # 73 DGMD22 + 105 vault (0x8972...54ca)
+HOLDINGS_VIBESTR = 10013424 # ~10M in DGMD22
+GVC_TOP_OFFER_ETH = 0.14   # OpenSea top offer
+VIBESTR_PRICE_USD = 0.0005644  # OpenSea
+ETH_PRICE_USD = 1815       # approx current
+
 # STOKED data (Robinhood chain - can't auto-fetch, Cloudflare blocked)
 # Dates are approximate for USD calculation
 STOKED_DATA = [
@@ -166,6 +173,16 @@ def build_report():
     grand_in_usd = t_vib_buy_usd + t_gvc_buy_usd
     grand_out_usd = t_vib_sell_usd + t_gvc_sell_usd + t_stk_usd + t_moods_usd + otc_usd
     grand_net_usd = grand_out_usd - grand_in_usd
+
+    # Holdings value
+    gvc_hold_eth = HOLDINGS_GVC * GVC_TOP_OFFER_ETH
+    gvc_hold_usd = gvc_hold_eth * ETH_PRICE_USD
+    vib_hold_eth = (HOLDINGS_VIBESTR * VIBESTR_PRICE_USD) / ETH_PRICE_USD
+    vib_hold_usd = HOLDINGS_VIBESTR * VIBESTR_PRICE_USD
+    total_hold_eth = gvc_hold_eth + vib_hold_eth
+    total_hold_usd = gvc_hold_usd + vib_hold_usd
+    adjusted_net = grand_net + total_hold_eth
+    adjusted_net_usd = grand_net_usd + total_hold_usd
 
     # Wallet rows for the table
     wallet_rows = ''
@@ -396,6 +413,28 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
         <div class="tk-big sell">{OTC_ETH:.2f} ETH</div>
         <div class="tk-usd">~{fmt_usd(otc_usd)}</div>
         <div class="tk-detail">50 VIBESTR @ 0.2 ETH each</div>
+    </div>
+</div>
+
+<!-- Still Holds -->
+<div class="tokens" style="grid-template-columns: repeat(3, 1fr); margin-top: 0;">
+    <div class="tk" style="border-color: #58a6ff;">
+        <div class="tk-name">Still Holds: GVC</div>
+        <div class="tk-big" style="color: #58a6ff;">{HOLDINGS_GVC} NFTs</div>
+        <div class="tk-usd">~{gvc_hold_eth:.2f}e (~{fmt_usd(gvc_hold_usd)})</div>
+        <div class="tk-detail">73 DGMD22 + 105 vault &middot; top offer {GVC_TOP_OFFER_ETH}e</div>
+    </div>
+    <div class="tk" style="border-color: #58a6ff;">
+        <div class="tk-name">Still Holds: VIBESTR</div>
+        <div class="tk-big" style="color: #58a6ff;">{HOLDINGS_VIBESTR:,.0f}</div>
+        <div class="tk-usd">~{vib_hold_eth:.2f}e (~{fmt_usd(vib_hold_usd)})</div>
+        <div class="tk-detail">~10M tokens in DGMD22</div>
+    </div>
+    <div class="tk" style="border-color: {'#3fb950' if adjusted_net > 0 else '#f85149'};">
+        <div class="tk-name">Adjusted P&L (incl. holdings)</div>
+        <div class="tk-big {'buy' if adjusted_net > 0 else 'sell'}">{adjusted_net:+.2f}e</div>
+        <div class="tk-usd">~{fmt_usd(abs(adjusted_net_usd))}</div>
+        <div class="tk-detail">Realized {grand_net:+.2f}e + holdings ~{total_hold_eth:.2f}e</div>
     </div>
 </div>
 
