@@ -9,13 +9,13 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: #0d1117;
-    color: #b1bac4;
+    color: #8b949e;
     padding: 12px 16px;
     max-width: 1200px;
     margin: 0 auto;
 }
 
-/* Header row */
+/* Header */
 .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
 .top h1 { color: #e6edf3; font-size: 15px; font-weight: 700; }
 .top .sub { color: #484f58; font-size: 9px; }
@@ -32,12 +32,11 @@ body {
 .r { color: #f85149; }
 .g { color: #3fb950; }
 .b { color: #58a6ff; }
+.d { color: #484f58; }
 
-/* 2x2 grid for assets */
+/* 2x2 grid */
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }
-.asset {
-    border: 1px solid #21262d; border-radius: 6px; overflow: hidden;
-}
+.asset { border: 1px solid #21262d; border-radius: 6px; overflow: hidden; }
 .ah {
     display: flex; justify-content: space-between; align-items: center;
     padding: 6px 10px; background: #161b22; border-bottom: 1px solid #21262d;
@@ -49,31 +48,46 @@ body {
     background: #0d1117; border-bottom: 1px solid #21262d; flex-wrap: wrap;
 }
 .ai .al { font-size: 7px; color: #484f58; text-transform: uppercase; letter-spacing: 0.3px; }
-.ai .av { font-size: 12px; font-weight: 700; font-family: 'SF Mono', ui-monospace, monospace; }
+.ai .av { font-size: 12px; font-weight: 600; font-family: 'SF Mono', ui-monospace, monospace; }
 .ai .au { font-size: 8px; color: #484f58; font-family: 'SF Mono', ui-monospace, monospace; }
 
 /* Tables */
 .asset table { width: 100%; border-collapse: collapse; }
 .asset th {
-    text-align: right; font-size: 8px; color: #484f58; font-weight: 600;
+    text-align: right; font-size: 8px; color: #484f58; font-weight: 500;
     padding: 3px 10px; text-transform: uppercase; letter-spacing: 0.3px;
     background: #0d1117; border-bottom: 1px solid #21262d;
 }
 .asset th:first-child { text-align: left; }
 .asset td { padding: 1px 10px; border-bottom: 1px solid #161b22; }
-.wn { font-weight: 600; color: #c9d1d9; font-size: 10px; }
-.n { text-align: right; font-family: 'SF Mono', ui-monospace, monospace; font-size: 10px; font-variant-numeric: tabular-nums; }
-.asset .tot td { background: #161b22; font-weight: 700; border-top: 1px solid #21262d; }
+.wn { font-weight: 500; color: #8b949e; font-size: 10px; }
+.n { text-align: right; font-family: 'SF Mono', ui-monospace, monospace; font-size: 10px; font-variant-numeric: tabular-nums; color: #8b949e; }
+.asset .tot td { background: #161b22; border-top: 1px solid #21262d; }
+.asset .tot .wn { font-weight: 600; color: #c9d1d9; }
+.asset .tot .n { font-weight: 600; color: #c9d1d9; }
 
-/* Holdings row */
-.holds { display: flex; gap: 4px; margin-bottom: 4px; }
-.hc {
-    flex: 1; padding: 6px 10px;
-    background: #161b22; border: 1px solid #1f6feb33; border-radius: 6px;
+/* Holdings */
+.hold {
+    border: 1px solid #1f6feb33; border-radius: 6px; overflow: hidden;
+    margin-bottom: 4px;
 }
-.hc .lb { font-size: 8px; color: #58a6ff; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
-.hc .vl { font-size: 14px; font-weight: 700; color: #e6edf3; font-family: 'SF Mono', ui-monospace, monospace; }
-.hc .dt { font-size: 9px; color: #484f58; }
+.hold .hh {
+    padding: 5px 10px; background: #161b22; border-bottom: 1px solid #1f6feb33;
+    font-size: 9px; font-weight: 600; color: #58a6ff; text-transform: uppercase; letter-spacing: 0.4px;
+}
+.hold table { width: 100%; border-collapse: collapse; }
+.hold th {
+    text-align: right; font-size: 8px; color: #484f58; font-weight: 500;
+    padding: 3px 10px; text-transform: uppercase; background: #0d1117; border-bottom: 1px solid #21262d;
+}
+.hold th:first-child { text-align: left; }
+.hold td { padding: 3px 10px; border-bottom: 1px solid #161b22; }
+.hold .hn { font-weight: 500; color: #8b949e; font-size: 10px; }
+.hold .hv { text-align: right; font-family: 'SF Mono', ui-monospace, monospace; font-size: 10px; color: #8b949e; }
+.hold .ht td { background: #161b22; font-weight: 600; border-top: 1px solid #21262d; }
+.hold .ht .hn { color: #c9d1d9; }
+.hold .ht .hv { color: #58a6ff; }
+.hold .note { padding: 2px 10px; font-size: 7px; color: #30363d; background: #0d1117; }
 
 /* Footer */
 .foot { font-size: 8px; color: #30363d; line-height: 1.5; }
@@ -84,15 +98,15 @@ body {
 
 <div class="top">
     <h1>DGMD Wallet Tracker</h1>
-    <span class="sub">5 wallets &middot; Nov 17, 2026 15:28 UTC</span>
+    <span class="sub">5 wallets &middot; Nov 17, 2026 15:34 UTC</span>
 </div>
 
 <!-- Summary -->
 <div class="sum">
-    <div class="sc"><div class="lb">Cost Basis</div><div class="vl">432.23</div><div class="us">$1,338,071</div></div>
-    <div class="sc"><div class="lb">Proceeds</div><div class="vl g">181.36</div><div class="us">$507,527</div></div>
-    <div class="sc"><div class="lb">Holdings Value*</div><div class="vl b">36.76</div><div class="us">178 GVC (33.64e) + 10M VIBESTR (3.11e)</div><div class="us">*Top offer used to determine value</div></div>
-    <div class="sc"><div class="lb">Total P&L</div><div class="vl r">-214.12</div><div class="us">$763,831</div></div>
+    <div class="sc"><div class="lb">Cost Basis</div><div class="vl">432.23e</div><div class="us">$1,338,071</div></div>
+    <div class="sc"><div class="lb">Proceeds</div><div class="vl g">181.36e</div><div class="us">$507,527</div></div>
+    <div class="sc"><div class="lb">Holdings Value*</div><div class="vl b">36.76e</div><div class="us">$66,713</div></div>
+    <div class="sc"><div class="lb">Total P&L</div><div class="vl r">-214.12e</div><div class="us">$763,831</div></div>
 </div>
 
 <!-- 2x2 Asset Grid -->
@@ -102,10 +116,10 @@ body {
 <div class="asset">
     <div class="ah"><span class="nm">VIBESTR</span><span class="tg">ERC-20</span></div>
     <div class="ast">
-        <div class="ai"><div class="al">ETH In</div><div class="av r">105.33</div><div class="au">$326,524</div></div>
-        <div class="ai"><div class="al">ETH Out</div><div class="av g">126.34</div><div class="au">$358,885</div></div>
-        <div class="ai"><div class="al">OTC</div><div class="av g">10</div><div class="au">50 @ 0.2e</div></div>
-        <div class="ai"><div class="al">Net</div><div class="av g">+31.01</div></div>
+        <div class="ai"><div class="al">ETH In</div><div class="av r">105.33e</div><div class="au">$326,524</div></div>
+        <div class="ai"><div class="al">ETH Out</div><div class="av g">126.34e</div><div class="au">$358,885</div></div>
+        <div class="ai"><div class="al">OTC</div><div class="av g">10e</div><div class="au">50 @ 0.2e</div></div>
+        <div class="ai"><div class="al">Net</div><div class="av g">+31.01e</div></div>
     </div>
     <table>
         <tr><th>Wallet</th><th>In</th><th>Out</th><th>Net</th></tr>
@@ -135,7 +149,7 @@ body {
                 <td class="n g">3.39</td>
                 <td class="n r">-3.29</td>
             </tr>
-        <tr class="tot"><td class="wn">Total</td><td class="n r">105.33</td><td class="n g">126.34</td><td class="n g">+21.01</td></tr>
+        <tr class="tot"><td class="wn">Total</td><td class="n r">105.33e<br><span class="d">$326,524</span></td><td class="n g">126.34e<br><span class="d">$358,885</span></td><td class="n g">+21.01e</td></tr>
     </table>
 </div>
 
@@ -143,9 +157,9 @@ body {
 <div class="asset">
     <div class="ah"><span class="nm">GVC</span><span class="tg">ERC-721 NFT</span></div>
     <div class="ast">
-        <div class="ai"><div class="al">ETH In (450)</div><div class="av r">326.90</div><div class="au">$1,011,547</div></div>
-        <div class="ai"><div class="al">ETH Out (243)</div><div class="av g">35.30</div><div class="au">$85,164</div></div>
-        <div class="ai"><div class="al">Net</div><div class="av r">-291.60</div></div>
+        <div class="ai"><div class="al">ETH In (450)</div><div class="av r">326.90e</div><div class="au">$1,011,547</div></div>
+        <div class="ai"><div class="al">ETH Out (243)</div><div class="av g">35.30e</div><div class="au">$85,164</div></div>
+        <div class="ai"><div class="al">Net</div><div class="av r">-291.60e</div></div>
     </div>
     <table>
         <tr><th>Wallet</th><th>In</th><th>Out</th><th>Net</th></tr>
@@ -175,7 +189,7 @@ body {
                 <td class="n g">6.90</td>
                 <td class="n r">-41.97</td>
             </tr>
-        <tr class="tot"><td class="wn">Total</td><td class="n r">326.90</td><td class="n g">35.30</td><td class="n r">-291.60</td></tr>
+        <tr class="tot"><td class="wn">Total</td><td class="n r">326.90e<br><span class="d">$1,011,547</span></td><td class="n g">35.30e<br><span class="d">$85,164</span></td><td class="n r">-291.60e</td></tr>
     </table>
 </div>
 
@@ -183,9 +197,9 @@ body {
 <div class="asset">
     <div class="ah"><span class="nm">MOODS</span><span class="tg">NFT &middot; Cryo Chamber</span></div>
     <div class="ast">
-        <div class="ai"><div class="al">ETH In</div><div class="av" style="color:#484f58">0.00</div></div>
-        <div class="ai"><div class="al">ETH Out (10 sold)</div><div class="av g">0.8290</div><div class="au">$2,661</div></div>
-        <div class="ai"><div class="al">Net</div><div class="av g">+0.8290</div></div>
+        <div class="ai"><div class="al">ETH In</div><div class="av d">0.00e</div></div>
+        <div class="ai"><div class="al">ETH Out (10 sold)</div><div class="av g">0.8290e</div><div class="au">$2,661</div></div>
+        <div class="ai"><div class="al">Net</div><div class="av g">+0.8290e</div></div>
     </div>
     <table>
         <tr><th>Wallet</th><th>In</th><th>Out</th><th>Net</th></tr>
@@ -215,7 +229,7 @@ body {
                 <td class="n g">0.00</td>
                 <td class="n r">+0.00</td>
             </tr>
-        <tr class="tot"><td class="wn">Total</td><td class="n r">0.00</td><td class="n g">0.8290</td><td class="n g">+0.8290</td></tr>
+        <tr class="tot"><td class="wn">Total</td><td class="n d">0.00e</td><td class="n g">0.8290e<br><span class="d">$2,661</span></td><td class="n g">+0.8290e</td></tr>
     </table>
 </div>
 
@@ -223,9 +237,9 @@ body {
 <div class="asset">
     <div class="ah"><span class="nm">STOKED</span><span class="tg">Token &middot; ANVIL</span></div>
     <div class="ast">
-        <div class="ai"><div class="al">ETH In</div><div class="av" style="color:#484f58">0.00</div></div>
-        <div class="ai"><div class="al">ETH Out (25 sells)</div><div class="av g">8.89</div><div class="au">$20,691</div></div>
-        <div class="ai"><div class="al">Net</div><div class="av g">+8.89</div></div>
+        <div class="ai"><div class="al">ETH In</div><div class="av d">0.00e</div></div>
+        <div class="ai"><div class="al">ETH Out (25 sells)</div><div class="av g">8.89e</div><div class="au">$20,691</div></div>
+        <div class="ai"><div class="al">Net</div><div class="av g">+8.89e</div></div>
     </div>
     <table>
         <tr><th>Wallet</th><th>In</th><th>Out</th><th>Net</th></tr>
@@ -255,16 +269,22 @@ body {
                 <td class="n g">3.32</td>
                 <td class="n g">+3.32</td>
             </tr>
-        <tr class="tot"><td class="wn">Total</td><td class="n r">0.00</td><td class="n g">8.89</td><td class="n g">+8.89</td></tr>
+        <tr class="tot"><td class="wn">Total</td><td class="n d">0.00e</td><td class="n g">8.89e<br><span class="d">$20,691</span></td><td class="n g">+8.89e</td></tr>
     </table>
 </div>
 
 </div><!-- /grid -->
 
 <!-- Holdings -->
-<div class="holds">
-    <div class="hc"><div class="lb">Holds: GVC</div><div class="vl">178 NFTs</div><div class="dt">33.64e &middot; $61,061 &middot; 73 DGMD22 + 105 vault</div></div>
-    <div class="hc"><div class="lb">Holds: VIBESTR</div><div class="vl">10,013,424</div><div class="dt">3.11e &middot; $5,652 &middot; ~10M in DGMD22</div></div>
+<div class="hold">
+    <div class="hh">Holdings*</div>
+    <table>
+        <tr><th>Asset</th><th>Qty</th><th>ETH</th><th>USD</th></tr>
+        <tr><td class="hn">GVC</td><td class="hv">178</td><td class="hv">33.64e</td><td class="hv">$61,061</td></tr>
+        <tr><td class="hn">VIBESTR</td><td class="hv">10,013,424</td><td class="hv">3.11e</td><td class="hv">$5,652</td></tr>
+        <tr class="ht"><td class="hn">Total</td><td class="hv"></td><td class="hv">36.76e</td><td class="hv">$66,713</td></tr>
+    </table>
+    <div class="note">*Valued at top offer per NFT (OpenSea). 73 GVC in DGMD22 at collection offer, 105 in vault at per-NFT offers.</div>
 </div>
 
 <div class="foot">

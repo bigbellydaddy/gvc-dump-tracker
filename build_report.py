@@ -246,13 +246,13 @@ def build_report():
 body {{
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: #0d1117;
-    color: #b1bac4;
+    color: #8b949e;
     padding: 12px 16px;
     max-width: 1200px;
     margin: 0 auto;
 }}
 
-/* Header row */
+/* Header */
 .top {{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }}
 .top h1 {{ color: #e6edf3; font-size: 15px; font-weight: 700; }}
 .top .sub {{ color: #484f58; font-size: 9px; }}
@@ -269,12 +269,11 @@ body {{
 .r {{ color: #f85149; }}
 .g {{ color: #3fb950; }}
 .b {{ color: #58a6ff; }}
+.d {{ color: #484f58; }}
 
-/* 2x2 grid for assets */
+/* 2x2 grid */
 .grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 6px; }}
-.asset {{
-    border: 1px solid #21262d; border-radius: 6px; overflow: hidden;
-}}
+.asset {{ border: 1px solid #21262d; border-radius: 6px; overflow: hidden; }}
 .ah {{
     display: flex; justify-content: space-between; align-items: center;
     padding: 6px 10px; background: #161b22; border-bottom: 1px solid #21262d;
@@ -286,31 +285,46 @@ body {{
     background: #0d1117; border-bottom: 1px solid #21262d; flex-wrap: wrap;
 }}
 .ai .al {{ font-size: 7px; color: #484f58; text-transform: uppercase; letter-spacing: 0.3px; }}
-.ai .av {{ font-size: 12px; font-weight: 700; font-family: 'SF Mono', ui-monospace, monospace; }}
+.ai .av {{ font-size: 12px; font-weight: 600; font-family: 'SF Mono', ui-monospace, monospace; }}
 .ai .au {{ font-size: 8px; color: #484f58; font-family: 'SF Mono', ui-monospace, monospace; }}
 
 /* Tables */
 .asset table {{ width: 100%; border-collapse: collapse; }}
 .asset th {{
-    text-align: right; font-size: 8px; color: #484f58; font-weight: 600;
+    text-align: right; font-size: 8px; color: #484f58; font-weight: 500;
     padding: 3px 10px; text-transform: uppercase; letter-spacing: 0.3px;
     background: #0d1117; border-bottom: 1px solid #21262d;
 }}
 .asset th:first-child {{ text-align: left; }}
 .asset td {{ padding: 1px 10px; border-bottom: 1px solid #161b22; }}
-.wn {{ font-weight: 600; color: #c9d1d9; font-size: 10px; }}
-.n {{ text-align: right; font-family: 'SF Mono', ui-monospace, monospace; font-size: 10px; font-variant-numeric: tabular-nums; }}
-.asset .tot td {{ background: #161b22; font-weight: 700; border-top: 1px solid #21262d; }}
+.wn {{ font-weight: 500; color: #8b949e; font-size: 10px; }}
+.n {{ text-align: right; font-family: 'SF Mono', ui-monospace, monospace; font-size: 10px; font-variant-numeric: tabular-nums; color: #8b949e; }}
+.asset .tot td {{ background: #161b22; border-top: 1px solid #21262d; }}
+.asset .tot .wn {{ font-weight: 600; color: #c9d1d9; }}
+.asset .tot .n {{ font-weight: 600; color: #c9d1d9; }}
 
-/* Holdings row */
-.holds {{ display: flex; gap: 4px; margin-bottom: 4px; }}
-.hc {{
-    flex: 1; padding: 6px 10px;
-    background: #161b22; border: 1px solid #1f6feb33; border-radius: 6px;
+/* Holdings */
+.hold {{
+    border: 1px solid #1f6feb33; border-radius: 6px; overflow: hidden;
+    margin-bottom: 4px;
 }}
-.hc .lb {{ font-size: 8px; color: #58a6ff; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }}
-.hc .vl {{ font-size: 14px; font-weight: 700; color: #e6edf3; font-family: 'SF Mono', ui-monospace, monospace; }}
-.hc .dt {{ font-size: 9px; color: #484f58; }}
+.hold .hh {{
+    padding: 5px 10px; background: #161b22; border-bottom: 1px solid #1f6feb33;
+    font-size: 9px; font-weight: 600; color: #58a6ff; text-transform: uppercase; letter-spacing: 0.4px;
+}}
+.hold table {{ width: 100%; border-collapse: collapse; }}
+.hold th {{
+    text-align: right; font-size: 8px; color: #484f58; font-weight: 500;
+    padding: 3px 10px; text-transform: uppercase; background: #0d1117; border-bottom: 1px solid #21262d;
+}}
+.hold th:first-child {{ text-align: left; }}
+.hold td {{ padding: 3px 10px; border-bottom: 1px solid #161b22; }}
+.hold .hn {{ font-weight: 500; color: #8b949e; font-size: 10px; }}
+.hold .hv {{ text-align: right; font-family: 'SF Mono', ui-monospace, monospace; font-size: 10px; color: #8b949e; }}
+.hold .ht td {{ background: #161b22; font-weight: 600; border-top: 1px solid #21262d; }}
+.hold .ht .hn {{ color: #c9d1d9; }}
+.hold .ht .hv {{ color: #58a6ff; }}
+.hold .note {{ padding: 2px 10px; font-size: 7px; color: #30363d; background: #0d1117; }}
 
 /* Footer */
 .foot {{ font-size: 8px; color: #30363d; line-height: 1.5; }}
@@ -326,10 +340,10 @@ body {{
 
 <!-- Summary -->
 <div class="sum">
-    <div class="sc"><div class="lb">Cost Basis</div><div class="vl">{grand_in:.2f}</div><div class="us">{fmt_usd(grand_in_usd)}</div></div>
-    <div class="sc"><div class="lb">Proceeds</div><div class="vl g">{grand_out:.2f}</div><div class="us">{fmt_usd(grand_out_usd)}</div></div>
-    <div class="sc"><div class="lb">Holdings Value*</div><div class="vl b">{total_hold_eth:.2f}</div><div class="us">{HOLDINGS_GVC} GVC ({gvc_hold_eth:.2f}e) + {HOLDINGS_VIBESTR/1e6:.0f}M VIBESTR ({vib_hold_eth:.2f}e)</div><div class="us">*Top offer used to determine value</div></div>
-    <div class="sc"><div class="lb">Total P&L</div><div class="vl {'g' if adjusted_net > 0 else 'r'}">{adjusted_net:+.2f}</div><div class="us">{fmt_usd(abs(adjusted_net_usd))}</div></div>
+    <div class="sc"><div class="lb">Cost Basis</div><div class="vl">{grand_in:.2f}e</div><div class="us">{fmt_usd(grand_in_usd)}</div></div>
+    <div class="sc"><div class="lb">Proceeds</div><div class="vl g">{grand_out:.2f}e</div><div class="us">{fmt_usd(grand_out_usd)}</div></div>
+    <div class="sc"><div class="lb">Holdings Value*</div><div class="vl b">{total_hold_eth:.2f}e</div><div class="us">{fmt_usd(total_hold_usd)}</div></div>
+    <div class="sc"><div class="lb">Total P&L</div><div class="vl {'g' if adjusted_net > 0 else 'r'}">{adjusted_net:+.2f}e</div><div class="us">{fmt_usd(abs(adjusted_net_usd))}</div></div>
 </div>
 
 <!-- 2x2 Asset Grid -->
@@ -339,15 +353,15 @@ body {{
 <div class="asset">
     <div class="ah"><span class="nm">VIBESTR</span><span class="tg">ERC-20</span></div>
     <div class="ast">
-        <div class="ai"><div class="al">ETH In</div><div class="av r">{t_vib_buy:.2f}</div><div class="au">{fmt_usd(t_vib_buy_usd)}</div></div>
-        <div class="ai"><div class="al">ETH Out</div><div class="av g">{t_vib_sell:.2f}</div><div class="au">{fmt_usd(t_vib_sell_usd)}</div></div>
-        <div class="ai"><div class="al">OTC</div><div class="av g">{OTC_ETH:.0f}</div><div class="au">50 @ 0.2e</div></div>
-        <div class="ai"><div class="al">Net</div><div class="av {'g' if vib_net > 0 else 'r'}">{vib_net:+.2f}</div></div>
+        <div class="ai"><div class="al">ETH In</div><div class="av r">{t_vib_buy:.2f}e</div><div class="au">{fmt_usd(t_vib_buy_usd)}</div></div>
+        <div class="ai"><div class="al">ETH Out</div><div class="av g">{t_vib_sell:.2f}e</div><div class="au">{fmt_usd(t_vib_sell_usd)}</div></div>
+        <div class="ai"><div class="al">OTC</div><div class="av g">{OTC_ETH:.0f}e</div><div class="au">50 @ 0.2e</div></div>
+        <div class="ai"><div class="al">Net</div><div class="av {'g' if vib_net > 0 else 'r'}">{vib_net:+.2f}e</div></div>
     </div>
     <table>
         <tr><th>Wallet</th><th>In</th><th>Out</th><th>Net</th></tr>
         {vibestr_rows}
-        <tr class="tot"><td class="wn">Total</td><td class="n r">{t_vib_buy:.2f}</td><td class="n g">{t_vib_sell:.2f}</td><td class="n {'g' if t_vib_sell - t_vib_buy > 0 else 'r'}">{t_vib_sell - t_vib_buy:+.2f}</td></tr>
+        <tr class="tot"><td class="wn">Total</td><td class="n r">{t_vib_buy:.2f}e<br><span class="d">{fmt_usd(t_vib_buy_usd)}</span></td><td class="n g">{t_vib_sell:.2f}e<br><span class="d">{fmt_usd(t_vib_sell_usd)}</span></td><td class="n {'g' if t_vib_sell - t_vib_buy > 0 else 'r'}">{t_vib_sell - t_vib_buy:+.2f}e</td></tr>
     </table>
 </div>
 
@@ -355,14 +369,14 @@ body {{
 <div class="asset">
     <div class="ah"><span class="nm">GVC</span><span class="tg">ERC-721 NFT</span></div>
     <div class="ast">
-        <div class="ai"><div class="al">ETH In ({t_gvc_n_buy})</div><div class="av r">{t_gvc_buy:.2f}</div><div class="au">{fmt_usd(t_gvc_buy_usd)}</div></div>
-        <div class="ai"><div class="al">ETH Out ({t_gvc_n_sold})</div><div class="av g">{t_gvc_sell:.2f}</div><div class="au">{fmt_usd(t_gvc_sell_usd)}</div></div>
-        <div class="ai"><div class="al">Net</div><div class="av r">{gvc_net:+.2f}</div></div>
+        <div class="ai"><div class="al">ETH In ({t_gvc_n_buy})</div><div class="av r">{t_gvc_buy:.2f}e</div><div class="au">{fmt_usd(t_gvc_buy_usd)}</div></div>
+        <div class="ai"><div class="al">ETH Out ({t_gvc_n_sold})</div><div class="av g">{t_gvc_sell:.2f}e</div><div class="au">{fmt_usd(t_gvc_sell_usd)}</div></div>
+        <div class="ai"><div class="al">Net</div><div class="av r">{gvc_net:+.2f}e</div></div>
     </div>
     <table>
         <tr><th>Wallet</th><th>In</th><th>Out</th><th>Net</th></tr>
         {gvc_rows}
-        <tr class="tot"><td class="wn">Total</td><td class="n r">{t_gvc_buy:.2f}</td><td class="n g">{t_gvc_sell:.2f}</td><td class="n r">{gvc_net:+.2f}</td></tr>
+        <tr class="tot"><td class="wn">Total</td><td class="n r">{t_gvc_buy:.2f}e<br><span class="d">{fmt_usd(t_gvc_buy_usd)}</span></td><td class="n g">{t_gvc_sell:.2f}e<br><span class="d">{fmt_usd(t_gvc_sell_usd)}</span></td><td class="n r">{gvc_net:+.2f}e</td></tr>
     </table>
 </div>
 
@@ -370,14 +384,14 @@ body {{
 <div class="asset">
     <div class="ah"><span class="nm">MOODS</span><span class="tg">NFT &middot; Cryo Chamber</span></div>
     <div class="ast">
-        <div class="ai"><div class="al">ETH In</div><div class="av" style="color:#484f58">0.00</div></div>
-        <div class="ai"><div class="al">ETH Out ({t_moods_n} sold)</div><div class="av g">{t_moods:.4f}</div><div class="au">{fmt_usd(t_moods_usd)}</div></div>
-        <div class="ai"><div class="al">Net</div><div class="av g">+{t_moods:.4f}</div></div>
+        <div class="ai"><div class="al">ETH In</div><div class="av d">0.00e</div></div>
+        <div class="ai"><div class="al">ETH Out ({t_moods_n} sold)</div><div class="av g">{t_moods:.4f}e</div><div class="au">{fmt_usd(t_moods_usd)}</div></div>
+        <div class="ai"><div class="al">Net</div><div class="av g">+{t_moods:.4f}e</div></div>
     </div>
     <table>
         <tr><th>Wallet</th><th>In</th><th>Out</th><th>Net</th></tr>
         {moods_rows}
-        <tr class="tot"><td class="wn">Total</td><td class="n r">0.00</td><td class="n g">{t_moods:.4f}</td><td class="n g">+{t_moods:.4f}</td></tr>
+        <tr class="tot"><td class="wn">Total</td><td class="n d">0.00e</td><td class="n g">{t_moods:.4f}e<br><span class="d">{fmt_usd(t_moods_usd)}</span></td><td class="n g">+{t_moods:.4f}e</td></tr>
     </table>
 </div>
 
@@ -385,23 +399,29 @@ body {{
 <div class="asset">
     <div class="ah"><span class="nm">STOKED</span><span class="tg">Token &middot; ANVIL</span></div>
     <div class="ast">
-        <div class="ai"><div class="al">ETH In</div><div class="av" style="color:#484f58">0.00</div></div>
-        <div class="ai"><div class="al">ETH Out ({t_stk_sells} sells)</div><div class="av g">{t_stk_eth:.2f}</div><div class="au">{fmt_usd(t_stk_usd)}</div></div>
-        <div class="ai"><div class="al">Net</div><div class="av g">+{t_stk_eth:.2f}</div></div>
+        <div class="ai"><div class="al">ETH In</div><div class="av d">0.00e</div></div>
+        <div class="ai"><div class="al">ETH Out ({t_stk_sells} sells)</div><div class="av g">{t_stk_eth:.2f}e</div><div class="au">{fmt_usd(t_stk_usd)}</div></div>
+        <div class="ai"><div class="al">Net</div><div class="av g">+{t_stk_eth:.2f}e</div></div>
     </div>
     <table>
         <tr><th>Wallet</th><th>In</th><th>Out</th><th>Net</th></tr>
         {stoked_rows}
-        <tr class="tot"><td class="wn">Total</td><td class="n r">0.00</td><td class="n g">{t_stk_eth:.2f}</td><td class="n g">+{t_stk_eth:.2f}</td></tr>
+        <tr class="tot"><td class="wn">Total</td><td class="n d">0.00e</td><td class="n g">{t_stk_eth:.2f}e<br><span class="d">{fmt_usd(t_stk_usd)}</span></td><td class="n g">+{t_stk_eth:.2f}e</td></tr>
     </table>
 </div>
 
 </div><!-- /grid -->
 
 <!-- Holdings -->
-<div class="holds">
-    <div class="hc"><div class="lb">Holds: GVC</div><div class="vl">{HOLDINGS_GVC} NFTs</div><div class="dt">{gvc_hold_eth:.2f}e &middot; {fmt_usd(gvc_hold_usd)} &middot; 73 DGMD22 + 105 vault</div></div>
-    <div class="hc"><div class="lb">Holds: VIBESTR</div><div class="vl">{HOLDINGS_VIBESTR:,.0f}</div><div class="dt">{vib_hold_eth:.2f}e &middot; {fmt_usd(vib_hold_usd)} &middot; ~10M in DGMD22</div></div>
+<div class="hold">
+    <div class="hh">Holdings*</div>
+    <table>
+        <tr><th>Asset</th><th>Qty</th><th>ETH</th><th>USD</th></tr>
+        <tr><td class="hn">GVC</td><td class="hv">{HOLDINGS_GVC}</td><td class="hv">{gvc_hold_eth:.2f}e</td><td class="hv">{fmt_usd(gvc_hold_usd)}</td></tr>
+        <tr><td class="hn">VIBESTR</td><td class="hv">{HOLDINGS_VIBESTR:,.0f}</td><td class="hv">{vib_hold_eth:.2f}e</td><td class="hv">{fmt_usd(vib_hold_usd)}</td></tr>
+        <tr class="ht"><td class="hn">Total</td><td class="hv"></td><td class="hv">{total_hold_eth:.2f}e</td><td class="hv">{fmt_usd(total_hold_usd)}</td></tr>
+    </table>
+    <div class="note">*Valued at top offer per NFT (OpenSea). 73 GVC in DGMD22 at collection offer, 105 in vault at per-NFT offers.</div>
 </div>
 
 <div class="foot">
