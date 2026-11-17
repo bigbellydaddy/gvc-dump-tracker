@@ -15,8 +15,8 @@ WALLET_ADDRS = {
 }
 
 OTC_SALES = [
-    {'buyer': 'KillerNiz', 'amount': 10, 'price': 0.2, 'total': 2.0, 'token': 'VIBESTR'},
-    {'buyer': 'Joafen', 'amount': 40, 'price': 0.2, 'total': 8.0, 'token': 'VIBESTR'},
+    {'buyer': 'KillerNiz', 'amount': 10, 'price': 0.2, 'total': 2.0, 'token': 'GVC'},
+    {'buyer': 'Joafen', 'amount': 40, 'price': 0.2, 'total': 8.0, 'token': 'GVC'},
 ]
 OTC_ETH = sum(s['total'] for s in OTC_SALES)
 
@@ -224,10 +224,10 @@ def build_report():
     moods_rows = asset_rows('_none', 'moods_eth')
 
     # Token P&L bars
-    vib_net = t_vib_sell + OTC_ETH - t_vib_buy
-    vib_net_usd = t_vib_sell_usd + otc_usd - t_vib_buy_usd
-    gvc_net = t_gvc_sell - t_gvc_buy
-    gvc_net_usd = t_gvc_sell_usd - t_gvc_buy_usd
+    vib_net = t_vib_sell - t_vib_buy
+    vib_net_usd = t_vib_sell_usd - t_vib_buy_usd
+    gvc_net = t_gvc_sell + OTC_ETH - t_gvc_buy
+    gvc_net_usd = t_gvc_sell_usd + otc_usd - t_gvc_buy_usd
 
     # Totals for display
     t_gvc_n_buy = sum(s['gvc_n_buy'] for s in stats.values())
@@ -355,7 +355,6 @@ body {{
     <div class="ast">
         <div class="ai"><div class="al">ETH In</div><div class="av r">{t_vib_buy:.2f}e</div><div class="au">{fmt_usd(t_vib_buy_usd)}</div></div>
         <div class="ai"><div class="al">ETH Out</div><div class="av g">{t_vib_sell:.2f}e</div><div class="au">{fmt_usd(t_vib_sell_usd)}</div></div>
-        <div class="ai"><div class="al">OTC</div><div class="av g">{OTC_ETH:.0f}e</div><div class="au">50 @ 0.2e</div></div>
         <div class="ai"><div class="al">Net</div><div class="av {'g' if vib_net > 0 else 'r'}">{vib_net:+.2f}e</div></div>
     </div>
     <table>
@@ -371,7 +370,8 @@ body {{
     <div class="ast">
         <div class="ai"><div class="al">ETH In ({t_gvc_n_buy})</div><div class="av r">{t_gvc_buy:.2f}e</div><div class="au">{fmt_usd(t_gvc_buy_usd)}</div></div>
         <div class="ai"><div class="al">ETH Out ({t_gvc_n_sold})</div><div class="av g">{t_gvc_sell:.2f}e</div><div class="au">{fmt_usd(t_gvc_sell_usd)}</div></div>
-        <div class="ai"><div class="al">Net</div><div class="av r">{gvc_net:+.2f}e</div></div>
+        <div class="ai"><div class="al">OTC (50)</div><div class="av g">{OTC_ETH:.0f}e</div><div class="au">50 GVC @ 0.2e</div></div>
+        <div class="ai"><div class="al">Net</div><div class="av {'g' if gvc_net > 0 else 'r'}">{gvc_net:+.2f}e</div></div>
     </div>
     <table>
         <tr><th>Wallet</th><th>In</th><th>Out</th><th>Net</th></tr>
@@ -425,7 +425,7 @@ body {{
 </div>
 
 <div class="foot">
-    ETH &rarr; buy <span class="g">GVC</span> + <span class="g">VIBESTR</span> &rarr; Cryo (1 GVC = 3 MOODS) &rarr; <span class="r">MOODS/STOKED sold</span>. OTC: 50 VIBESTR for {OTC_ETH:.0f}e.
+    ETH &rarr; buy <span class="g">GVC</span> + <span class="g">VIBESTR</span> &rarr; Cryo (1 GVC = 3 MOODS) &rarr; <span class="r">MOODS/STOKED sold</span>. OTC: 50 GVC for {OTC_ETH:.0f}e.
     <br>{' &middot; '.join(f'{wn}: <code>{WALLET_ADDRS[wn][:8]}...</code>' for wn in WALLETS)} + vault: <code>0x8972e0...</code>
 </div>
 
