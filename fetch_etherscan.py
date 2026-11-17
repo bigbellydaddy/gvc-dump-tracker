@@ -20,7 +20,11 @@ WALLETS = {
     '0xa1862a515fe0d692392fd1e51d7aeab674a6864b': 'InvestmentFund1'
 }
 
+VAULT = '0x8972e0a32d509708c55e5a46d05966e690a454ca'
+CRYO_CHAMBER = '0xae2ddc0ae9c498c82c01e34d48a7e84165322f26'
+
 ALL_WALLETS = set(w.lower() for w in WALLETS.keys())
+SKIP_DESTINATIONS = ALL_WALLETS | {VAULT.lower(), CRYO_CHAMBER.lower()}
 
 VIBESTR = '0xd0cc2b0efb168bfe1f94a948d8df70fa10257196'
 GVC = '0xb8ea78fcacef50d41375e44e6814ebba36bb33c4'
@@ -215,6 +219,12 @@ def process_wallet(wallet_addr, wallet_name):
             is_sell = from_addr == wallet_lower
             is_buy = to_addr == wallet_lower
             if not is_sell and not is_buy:
+                continue
+
+            # Skip transfers to/from vault or Cryo Chamber (internal moves, not market trades)
+            if is_sell and to_addr in SKIP_DESTINATIONS:
+                continue
+            if is_buy and from_addr in SKIP_DESTINATIONS:
                 continue
 
             # Find ETH value for this NFT tx
