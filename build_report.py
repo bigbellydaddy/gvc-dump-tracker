@@ -15,8 +15,9 @@ WALLET_ADDRS = {
 }
 
 OTC_SALES = [
-    {'buyer': 'KillerNiz', 'amount': 10, 'price': 0.2, 'total': 2.0, 'token': 'GVC'},
+    {'buyer': 'KillerNiz', 'amount': 12, 'price': 0.22, 'total': 2.64, 'token': 'GVC'},
     {'buyer': 'Joafen', 'amount': 40, 'price': 0.2, 'total': 8.0, 'token': 'GVC'},
+    {'buyer': 'Johnsonville', 'amount': 16, 'price': 0.390625, 'total': 6.25, 'token': 'GVC'},
 ]
 OTC_ETH = sum(s['total'] for s in OTC_SALES)
 

@@ -23,8 +23,15 @@ WALLETS = {
 VAULT = '0x8972e0a32d509708c55e5a46d05966e690a454ca'
 CRYO_CHAMBER = '0xae2ddc0ae9c498c82c01e34d48a7e84165322f26'
 
+# OTC buyers (tracked separately in build_report.py OTC_SALES)
+OTC_BUYERS = {
+    '0xd7fe95c58f8fcc7a762c7713653630e601f3b44f',  # Joafen (40 GVC)
+    '0x13e47408172596e97d99b0d3802d44409378f0e9',  # KillerNiz (12 GVC)
+    '0x556697364a2df758073e55c0f8062f8d1349e5b3',  # Johnsonville (16 GVC)
+}
+
 ALL_WALLETS = set(w.lower() for w in WALLETS.keys())
-SKIP_DESTINATIONS = ALL_WALLETS | {VAULT.lower(), CRYO_CHAMBER.lower()}
+SKIP_DESTINATIONS = ALL_WALLETS | {VAULT.lower(), CRYO_CHAMBER.lower()} | {a.lower() for a in OTC_BUYERS}
 
 VIBESTR = '0xd0cc2b0efb168bfe1f94a948d8df70fa10257196'
 GVC = '0xb8ea78fcacef50d41375e44e6814ebba36bb33c4'
@@ -252,6 +259,10 @@ def process_wallet(wallet_addr, wallet_name):
                        if (t.get('from', '').lower() == wallet_lower) == is_sell]
             if len(same_dir) > 1 and value_eth > 0:
                 value_eth = value_eth / len(same_dir)
+
+            # Skip zero-value sells (floor-for-rare swaps, no ETH involved)
+            if is_sell and value_eth == 0:
+                continue
 
             ts = int(tx.get('timeStamp', '0'))
             date_str = datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M') if ts else 'unknown'
