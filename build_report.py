@@ -371,7 +371,7 @@ body {{
     <div class="ast">
         <div class="ai"><div class="al">ETH In ({t_gvc_n_buy})</div><div class="av r">{t_gvc_buy:.2f}e</div><div class="au">{fmt_usd(t_gvc_buy_usd)}</div></div>
         <div class="ai"><div class="al">ETH Out ({t_gvc_n_sold})</div><div class="av g">{t_gvc_sell:.2f}e</div><div class="au">{fmt_usd(t_gvc_sell_usd)}</div></div>
-        <div class="ai"><div class="al">OTC (50)</div><div class="av g">{OTC_ETH:.0f}e</div><div class="au">50 GVC @ 0.2e</div></div>
+        <div class="ai"><div class="al">OTC ({sum(s['amount'] for s in OTC_SALES)})</div><div class="av g">{OTC_ETH:.2f}e</div><div class="au">{', '.join(f"{s['buyer']} {s['amount']}@{s['price']}e" for s in OTC_SALES)}</div></div>
         <div class="ai"><div class="al">Net</div><div class="av {'g' if gvc_net > 0 else 'r'}">{gvc_net:+.2f}e</div></div>
     </div>
     <table>
@@ -426,7 +426,7 @@ body {{
 </div>
 
 <div class="foot">
-    ETH &rarr; buy <span class="g">GVC</span> + <span class="g">VIBESTR</span> &rarr; Cryo (1 GVC = 3 MOODS) &rarr; <span class="r">MOODS/STOKED sold</span>. OTC: 50 GVC for {OTC_ETH:.0f}e.
+    ETH &rarr; buy <span class="g">GVC</span> + <span class="g">VIBESTR</span> &rarr; Cryo (1 GVC = 3 MOODS) &rarr; <span class="r">MOODS/STOKED sold</span>. OTC: {sum(s['amount'] for s in OTC_SALES)} GVC for {OTC_ETH:.2f}e.
     <br>{' &middot; '.join(f'{wn}: <code>{WALLET_ADDRS[wn][:8]}...</code>' for wn in WALLETS)} + vault: <code>0x8972e0...</code>
 </div>
 
