@@ -407,10 +407,10 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
         <thead>
             <tr>
                 <th style="text-align:left">Wallet</th>
-                <th>VIBESTR Buy (ETH)</th>
-                <th>VIBESTR Sell (ETH)</th>
-                <th>GVC Buy (ETH)</th>
-                <th>GVC Sell (ETH)</th>
+                <th>VIBESTR ETH In</th>
+                <th>VIBESTR ETH Out</th>
+                <th>GVC ETH In</th>
+                <th>GVC ETH Out</th>
                 <th>STOKED (ETH)</th>
                 <th>MOODS (ETH)</th>
                 <th>Net (ETH)</th>
