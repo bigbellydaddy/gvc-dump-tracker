@@ -328,8 +328,8 @@ body {{
 <div class="sum">
     <div class="sc"><div class="lb">ETH Spent</div><div class="vl r">{grand_in:.2f}</div><div class="us">{fmt_usd(grand_in_usd)}</div></div>
     <div class="sc"><div class="lb">ETH Received</div><div class="vl g">{grand_out:.2f}</div><div class="us">{fmt_usd(grand_out_usd)}</div></div>
-    <div class="sc"><div class="lb">Realized P&L</div><div class="vl {'g' if grand_net > 0 else 'r'}">{grand_net:+.2f}</div><div class="us">{fmt_usd(abs(grand_net_usd))}</div></div>
-    <div class="sc"><div class="lb">Adj. P&L (w/ holdings)</div><div class="vl {'g' if adjusted_net > 0 else 'r'}">{adjusted_net:+.2f}</div><div class="us">{fmt_usd(abs(adjusted_net_usd))}</div></div>
+    <div class="sc"><div class="lb">Still Holds</div><div class="vl b">{total_hold_eth:.2f}</div><div class="us">{fmt_usd(total_hold_usd)}</div></div>
+    <div class="sc"><div class="lb">Total P&L</div><div class="vl {'g' if adjusted_net > 0 else 'r'}">{adjusted_net:+.2f}</div><div class="us">{fmt_usd(abs(adjusted_net_usd))}</div></div>
 </div>
 
 <!-- 2x2 Asset Grid -->
