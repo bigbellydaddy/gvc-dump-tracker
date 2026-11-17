@@ -124,8 +124,8 @@ tr:hover { background: #161b22; }
 <div class="cards">
     <div class="card">
         <div class="label">Total ETH Out (Sells)</div>
-        <div class="value sell">170.38 ETH</div>
-        <div class="sub">VIBESTR + GVC + STOKED</div>
+        <div class="value sell">180.38 ETH</div>
+        <div class="sub">VIBESTR + GVC + STOKED + OTC</div>
     </div>
     <div class="card">
         <div class="label">Total ETH In (Buys)</div>
@@ -134,7 +134,7 @@ tr:hover { background: #161b22; }
     </div>
     <div class="card">
         <div class="label">Net ETH Flow</div>
-        <div class="value buy">-261.85 ETH</div>
+        <div class="value buy">-251.85 ETH</div>
         <div class="sub">Invested net</div>
     </div>
     <div class="card">
@@ -335,6 +335,44 @@ tr:hover { background: #161b22; }
     <div class="note">
         <strong>Note:</strong> STOKED was obtained by swapping 80 GVC for 240 MOODS via "Cryo Chamber" &mdash; no ETH was spent buying STOKED.
         Some sells routed to USDG stablecoin instead of ETH.
+    </div>
+</div>
+
+<div class="section">
+    <h2>OTC (Off-Chain) Sales</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Token</th>
+                <th>Buyer</th>
+                <th class="num">Amount</th>
+                <th class="num">Price (ETH)</th>
+                <th class="num">Total ETH</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>VIBESTR</td>
+                <td>KillerNiz</td>
+                <td class="num">10</td>
+                <td class="num">0.2</td>
+                <td class="num eth">2.0</td>
+            </tr><tr>
+                <td>VIBESTR</td>
+                <td>Joafen</td>
+                <td class="num">40</td>
+                <td class="num">0.2</td>
+                <td class="num eth">8.0</td>
+            </tr>
+            <tr class="total-row">
+                <td colspan="4">TOTAL</td>
+                <td class="num eth">10.0</td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="note">
+        <strong>Note:</strong> These sales happened off-chain (not visible on Etherscan).
+        50 VIBESTR sold OTC at 0.2 ETH each = 10 ETH total.
     </div>
 </div>
 
