@@ -220,8 +220,8 @@ def build_report():
 
     vibestr_rows = asset_rows('vib_buy', 'vib_sell')
     gvc_rows = asset_rows('gvc_buy', 'gvc_sell')
-    stoked_rows = sells_only_rows('stk_eth', 'stk_usd')
-    moods_rows = sells_only_rows('moods_eth', 'moods_usd')
+    stoked_rows = asset_rows('_none', 'stk_eth')
+    moods_rows = asset_rows('_none', 'moods_eth')
 
     # Token P&L bars
     vib_net = t_vib_sell + OTC_ETH - t_vib_buy
@@ -370,13 +370,14 @@ body {{
 <div class="asset">
     <div class="ah"><span class="nm">MOODS</span><span class="tg">NFT &middot; Cryo Chamber</span></div>
     <div class="ast">
-        <div class="ai"><div class="al">ETH In</div><div class="av" style="color:#484f58">0</div><div class="au">Free from Cryo</div></div>
+        <div class="ai"><div class="al">ETH In</div><div class="av" style="color:#484f58">0.00</div><div class="au">Free from Cryo</div></div>
         <div class="ai"><div class="al">ETH Out ({t_moods_n} sold)</div><div class="av g">{t_moods:.4f}</div><div class="au">{fmt_usd(t_moods_usd)}</div></div>
+        <div class="ai"><div class="al">Net</div><div class="av g">+{t_moods:.4f}</div></div>
     </div>
     <table>
-        <tr><th>Wallet</th><th>ETH Out</th></tr>
+        <tr><th>Wallet</th><th>In</th><th>Out</th><th>Net</th></tr>
         {moods_rows}
-        <tr class="tot"><td class="wn">Total</td><td class="n g">{t_moods:.4f}</td></tr>
+        <tr class="tot"><td class="wn">Total</td><td class="n r">0.00</td><td class="n g">{t_moods:.4f}</td><td class="n g">+{t_moods:.4f}</td></tr>
     </table>
 </div>
 
@@ -384,13 +385,14 @@ body {{
 <div class="asset">
     <div class="ah"><span class="nm">STOKED</span><span class="tg">Token &middot; ANVIL</span></div>
     <div class="ast">
-        <div class="ai"><div class="al">ETH In</div><div class="av" style="color:#484f58">0</div><div class="au">Free from ANVIL</div></div>
+        <div class="ai"><div class="al">ETH In</div><div class="av" style="color:#484f58">0.00</div><div class="au">Free from ANVIL</div></div>
         <div class="ai"><div class="al">ETH Out ({t_stk_sells} sells)</div><div class="av g">{t_stk_eth:.2f}</div><div class="au">{fmt_usd(t_stk_usd)}</div></div>
+        <div class="ai"><div class="al">Net</div><div class="av g">+{t_stk_eth:.2f}</div></div>
     </div>
     <table>
-        <tr><th>Wallet</th><th>ETH Out</th></tr>
+        <tr><th>Wallet</th><th>In</th><th>Out</th><th>Net</th></tr>
         {stoked_rows}
-        <tr class="tot"><td class="wn">Total</td><td class="n g">{t_stk_eth:.2f}</td></tr>
+        <tr class="tot"><td class="wn">Total</td><td class="n r">0.00</td><td class="n g">{t_stk_eth:.2f}</td><td class="n g">+{t_stk_eth:.2f}</td></tr>
     </table>
 </div>
 
