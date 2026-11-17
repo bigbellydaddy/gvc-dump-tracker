@@ -23,9 +23,15 @@ OTC_ETH = sum(s['total'] for s in OTC_SALES)
 # Current holdings (checked on-chain 2026-11-17)
 HOLDINGS_GVC = 178          # 73 DGMD22 + 105 vault (0x8972...54ca)
 HOLDINGS_VIBESTR = 10013424 # ~10M in DGMD22
-GVC_TOP_OFFER_ETH = 0.14   # OpenSea top offer
-VIBESTR_PRICE_USD = 0.0005644  # OpenSea
 ETH_PRICE_USD = 1815       # approx current
+VIBESTR_PRICE_USD = 0.0005644  # OpenSea
+
+# GVC values from OpenSea per-NFT top offers (2026-11-17)
+# Vault: actual per-NFT top offers scraped from OpenSea
+# DGMD22: mostly floor/commons, using collection top offer $253.21 each
+GVC_VAULT_VALUE_USD = 42577.06   # 105 NFTs, actual per-NFT offers
+GVC_DGMD22_VALUE_USD = 18484.33  # 73 NFTs x $253.21 collection offer
+GVC_TOTAL_VALUE_USD = GVC_VAULT_VALUE_USD + GVC_DGMD22_VALUE_USD  # $61,061
 
 # STOKED data (Robinhood chain - can't auto-fetch, Cloudflare blocked)
 # Dates are approximate for USD calculation
@@ -174,11 +180,11 @@ def build_report():
     grand_out_usd = t_vib_sell_usd + t_gvc_sell_usd + t_stk_usd + t_moods_usd + otc_usd
     grand_net_usd = grand_out_usd - grand_in_usd
 
-    # Holdings value
-    gvc_hold_eth = HOLDINGS_GVC * GVC_TOP_OFFER_ETH
-    gvc_hold_usd = gvc_hold_eth * ETH_PRICE_USD
-    vib_hold_eth = (HOLDINGS_VIBESTR * VIBESTR_PRICE_USD) / ETH_PRICE_USD
+    # Holdings value (per-NFT top offers from OpenSea)
+    gvc_hold_usd = GVC_TOTAL_VALUE_USD
+    gvc_hold_eth = gvc_hold_usd / ETH_PRICE_USD
     vib_hold_usd = HOLDINGS_VIBESTR * VIBESTR_PRICE_USD
+    vib_hold_eth = vib_hold_usd / ETH_PRICE_USD
     total_hold_eth = gvc_hold_eth + vib_hold_eth
     total_hold_usd = gvc_hold_usd + vib_hold_usd
     adjusted_net = grand_net + total_hold_eth
@@ -422,7 +428,7 @@ td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
         <div class="tk-name">Still Holds: GVC</div>
         <div class="tk-big" style="color: #58a6ff;">{HOLDINGS_GVC} NFTs</div>
         <div class="tk-usd">~{gvc_hold_eth:.2f}e (~{fmt_usd(gvc_hold_usd)})</div>
-        <div class="tk-detail">73 DGMD22 + 105 vault &middot; top offer {GVC_TOP_OFFER_ETH}e</div>
+        <div class="tk-detail">73 DGMD22 (floor) + 105 vault (per-NFT offers)</div>
     </div>
     <div class="tk" style="border-color: #58a6ff;">
         <div class="tk-name">Still Holds: VIBESTR</div>
