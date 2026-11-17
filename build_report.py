@@ -328,7 +328,7 @@ body {{
 <div class="sum">
     <div class="sc"><div class="lb">Cost Basis</div><div class="vl">{grand_in:.2f}</div><div class="us">{fmt_usd(grand_in_usd)}</div></div>
     <div class="sc"><div class="lb">Proceeds</div><div class="vl g">{grand_out:.2f}</div><div class="us">{fmt_usd(grand_out_usd)}</div></div>
-    <div class="sc"><div class="lb">Holdings Value</div><div class="vl b">{total_hold_eth:.2f}</div><div class="us">{HOLDINGS_GVC} GVC ({gvc_hold_eth:.2f}e) + {HOLDINGS_VIBESTR/1e6:.0f}M VIBESTR ({vib_hold_eth:.2f}e)</div></div>
+    <div class="sc"><div class="lb">Holdings Value*</div><div class="vl b">{total_hold_eth:.2f}</div><div class="us">{HOLDINGS_GVC} GVC ({gvc_hold_eth:.2f}e) + {HOLDINGS_VIBESTR/1e6:.0f}M VIBESTR ({vib_hold_eth:.2f}e)</div><div class="us">*Top offer used to determine value</div></div>
     <div class="sc"><div class="lb">Total P&L</div><div class="vl {'g' if adjusted_net > 0 else 'r'}">{adjusted_net:+.2f}</div><div class="us">{fmt_usd(abs(adjusted_net_usd))}</div></div>
 </div>
 
