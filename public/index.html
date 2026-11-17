@@ -7,315 +7,328 @@
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #0a0e14;
-    color: #c9d1d9;
-    padding: 24px 28px;
-    max-width: 1200px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0d1117;
+    color: #b1bac4;
+    padding: 32px;
+    max-width: 960px;
     margin: 0 auto;
 }
+a { color: #58a6ff; text-decoration: none; }
 
-/* Header */
-.hdr { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }
-h1 { color: #fff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
-.ts { color: #3d4450; font-size: 10px; }
+.header { margin-bottom: 32px; }
+.header h1 { color: #e6edf3; font-size: 20px; font-weight: 700; }
+.header .sub { color: #484f58; font-size: 11px; margin-top: 4px; }
 
-/* Hero cards row */
-.hero { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
-.hero-card {
-    background: #111820;
-    border: 1px solid #1c2432;
-    border-radius: 10px;
-    padding: 16px 18px;
-    position: relative;
+/* Summary strip */
+.summary {
+    display: flex;
+    gap: 32px;
+    padding: 20px 24px;
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+.s-item { }
+.s-label { font-size: 10px; color: #484f58; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.s-val { font-size: 22px; font-weight: 700; font-family: 'SF Mono', ui-monospace, monospace; margin-top: 2px; }
+.s-usd { font-size: 11px; color: #484f58; font-family: 'SF Mono', ui-monospace, monospace; }
+.r { color: #f85149; }
+.g { color: #3fb950; }
+.b { color: #58a6ff; }
+
+/* Asset section */
+.asset {
+    margin-bottom: 24px;
+    border: 1px solid #21262d;
+    border-radius: 8px;
     overflow: hidden;
 }
-.hero-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
+.asset-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: #161b22;
+    border-bottom: 1px solid #21262d;
 }
-.hc-in::before { background: #3fb950; }
-.hc-out::before { background: #f85149; }
-.hc-net::before { background: #58a6ff; }
-.hc-label { color: #6e7681; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
-.hc-value { font-size: 32px; font-weight: 800; margin-top: 4px; letter-spacing: -1px; font-family: 'SF Mono', monospace; }
-.hc-usd { font-size: 14px; font-weight: 600; margin-top: 2px; font-family: 'SF Mono', monospace; opacity: 0.7; }
-.hc-sub { color: #3d4450; font-size: 10px; margin-top: 2px; }
-
-/* Token breakdown cards */
-.tokens { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
-.tk {
-    background: #111820;
-    border: 1px solid #1c2432;
-    border-radius: 10px;
-    padding: 14px;
-    text-align: center;
-}
-.tk-name { color: #58a6ff; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-.tk-big { font-size: 20px; font-weight: 800; font-family: 'SF Mono', monospace; letter-spacing: -0.5px; }
-.tk-row { display: flex; justify-content: space-between; font-size: 11px; margin-top: 4px; font-family: 'SF Mono', monospace; }
-.tk-detail { color: #484f58; font-size: 10px; margin-top: 4px; }
-.tk-usd { color: #6e7681; font-size: 10px; margin-top: 2px; font-family: 'SF Mono', monospace; }
-.tk-net { font-size: 13px; font-weight: 700; margin-top: 6px; font-family: 'SF Mono', monospace; }
-
-/* Wallet table */
-.tbl-wrap {
-    background: #111820;
-    border: 1px solid #1c2432;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 20px;
-}
-.tbl-title { padding: 12px 16px 0; color: #fff; font-size: 13px; font-weight: 700; }
-.tbl-note { padding: 2px 16px 0; color: #3d4450; font-size: 10px; }
-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-th {
-    text-align: right;
-    color: #3d4450;
-    font-weight: 600;
-    padding: 8px 12px;
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid #1c2432;
-    white-space: nowrap;
-}
-th:first-child { text-align: left; }
-td { padding: 8px 12px; border-bottom: 1px solid #141c27; }
-.num {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    font-family: 'SF Mono', monospace;
-    font-size: 12px;
-}
-.wallet-name {
-    font-weight: 600;
+.asset-name {
+    font-size: 13px;
+    font-weight: 700;
     color: #e6edf3;
-    white-space: nowrap;
 }
-.addr { color: #3d4450; font-size: 9px; font-family: 'SF Mono', monospace; margin-left: 6px; }
-.total-row { background: #0d1219; font-weight: 700; }
-.total-row td { border-top: 2px solid #1c2432; padding-top: 10px; padding-bottom: 10px; }
-
-/* Colors */
-.buy { color: #3fb950; }
-.sell { color: #f85149; }
-.profit { color: #f85149; }
-.loss { color: #3fb950; }
-.usd-sub { color: #6e7681; font-size: 9px; margin-left: 4px; display: block; font-weight: 400; }
-
-/* Flow note */
-.flow {
-    background: #111820;
-    border: 1px solid #1c2432;
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 11px;
+.asset-tag {
+    font-size: 10px;
     color: #484f58;
+    background: #21262d;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+.asset-stats {
+    display: flex;
+    gap: 24px;
+    padding: 12px 20px;
+    background: #0d1117;
+    border-bottom: 1px solid #21262d;
+    flex-wrap: wrap;
+}
+.as { }
+.as-label { font-size: 9px; color: #484f58; text-transform: uppercase; letter-spacing: 0.3px; }
+.as-val { font-size: 15px; font-weight: 700; font-family: 'SF Mono', ui-monospace, monospace; }
+.as-sub { font-size: 10px; color: #484f58; font-family: 'SF Mono', ui-monospace, monospace; }
+
+/* Mini tables inside assets */
+.asset table { width: 100%; border-collapse: collapse; }
+.asset th {
+    text-align: right; font-size: 9px; color: #484f58; font-weight: 600;
+    padding: 6px 16px; text-transform: uppercase; letter-spacing: 0.3px;
+    background: #0d1117; border-bottom: 1px solid #21262d;
+}
+.asset th:first-child { text-align: left; }
+.asset td { padding: 6px 16px; border-bottom: 1px solid #161b22; }
+.wn { font-weight: 600; color: #c9d1d9; font-size: 12px; }
+.n { text-align: right; font-family: 'SF Mono', ui-monospace, monospace; font-size: 12px; font-variant-numeric: tabular-nums; }
+.asset .tot td { background: #161b22; font-weight: 700; border-top: 1px solid #21262d; }
+
+/* Holdings */
+.holdings {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+.hold-card {
+    flex: 1;
+    min-width: 200px;
+    padding: 16px 20px;
+    background: #161b22;
+    border: 1px solid #1f6feb33;
+    border-radius: 8px;
+}
+.hold-card .label { font-size: 10px; color: #58a6ff; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.hold-card .val { font-size: 20px; font-weight: 700; color: #e6edf3; font-family: 'SF Mono', ui-monospace, monospace; margin-top: 4px; }
+.hold-card .detail { font-size: 11px; color: #484f58; margin-top: 4px; }
+
+/* Flow */
+.flow {
+    padding: 14px 20px;
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    font-size: 11px; color: #484f58; line-height: 1.7;
     margin-bottom: 16px;
-    line-height: 1.6;
 }
-.flow strong { color: #6e7681; }
-.flow .arrow { color: #3d4450; }
 
-/* Footer */
-.foot { font-size: 9px; color: #2d333b; padding-top: 10px; border-top: 1px solid #1c2432; }
-.foot code { font-size: 8px; color: #3d4450; }
+.foot { font-size: 9px; color: #30363d; margin-top: 12px; }
+.foot code { font-size: 8px; color: #484f58; }
 
-@media (max-width: 900px) {
-    .tokens { grid-template-columns: repeat(3, 1fr); }
-    .hero { grid-template-columns: 1fr; }
-    body { padding: 14px; }
-}
-@media (max-width: 600px) {
-    .tokens { grid-template-columns: 1fr 1fr; }
-    table { font-size: 10px; }
-    th, td { padding: 6px 8px; }
+@media (max-width: 700px) {
+    body { padding: 16px; }
+    .summary { flex-direction: column; gap: 16px; }
+    .asset-stats { flex-direction: column; gap: 8px; }
+    .holdings { flex-direction: column; }
 }
 </style>
 </head>
 <body>
 
-<div class="hdr">
+<div class="header">
     <h1>DGMD Wallet Tracker</h1>
-    <span class="ts">Updated Nov 17, 2026 15:06 UTC &middot; 5 wallets tracked</span>
+    <div class="sub">5 wallets &middot; updated Nov 17, 2026 15:13 UTC</div>
 </div>
 
-<!-- Hero cards -->
-<div class="hero">
-    <div class="hero-card hc-in">
-        <div class="hc-label">Total ETH Spent (Buys)</div>
-        <div class="hc-value buy">432.23 ETH</div>
-        <div class="hc-usd buy">$1,338,071</div>
-        <div class="hc-sub">VIBESTR + GVC purchases across all wallets</div>
+<div class="summary">
+    <div class="s-item">
+        <div class="s-label">ETH Spent</div>
+        <div class="s-val r">111.61</div>
+        <div class="s-usd">$368,386</div>
     </div>
-    <div class="hero-card hc-out">
-        <div class="hc-label">Total ETH Received (Sells)</div>
-        <div class="hc-value sell">181.36 ETH</div>
-        <div class="hc-usd sell">$507,527</div>
-        <div class="hc-sub">All sells incl. OTC &amp; STOKED</div>
+    <div class="s-item">
+        <div class="s-label">ETH Received</div>
+        <div class="s-val g">74.54</div>
+        <div class="s-usd">$224,123</div>
     </div>
-    <div class="hero-card hc-net">
-        <div class="hc-label">Net P&L</div>
-        <div class="hc-value buy">-250.88 ETH</div>
-        <div class="hc-usd buy">$830,544</div>
-        <div class="hc-sub">Spent more than received &middot; USD at time of each tx</div>
+    <div class="s-item">
+        <div class="s-label">Realized P&L</div>
+        <div class="s-val r">-37.07</div>
+        <div class="s-usd">$144,263</div>
     </div>
-</div>
-
-<!-- Token breakdown -->
-<div class="tokens">
-    <div class="tk">
-        <div class="tk-name">VIBESTR</div>
-        <div class="tk-row"><span class="buy">In: 105.33e</span><span class="sell">Out: 126.34e</span></div>
-        <div class="tk-net buy">Net: +31.01e</div>
-        <div class="tk-usd">~$72,487</div>
-        <div class="tk-detail">136.34e total w/ OTC</div>
-    </div>
-    <div class="tk">
-        <div class="tk-name">GVC</div>
-        <div class="tk-row"><span class="buy">In: 326.90e</span><span class="sell">Out: 35.30e</span></div>
-        <div class="tk-net sell">Net: -291.60e</div>
-        <div class="tk-usd">~$926,383</div>
-        <div class="tk-detail">450 bought / 243 sold</div>
-    </div>
-    <div class="tk">
-        <div class="tk-name">STOKED</div>
-        <div class="tk-big sell">8.89 ETH</div>
-        <div class="tk-usd">~$20,691</div>
-        <div class="tk-detail">25 sells (incl. USDG &rarr; ETH)</div>
-    </div>
-    <div class="tk">
-        <div class="tk-name">MOODS</div>
-        <div class="tk-big sell">0.8290 ETH</div>
-        <div class="tk-usd">~$2,661</div>
-        <div class="tk-detail">10 NFTs sold on OpenSea</div>
-    </div>
-    <div class="tk">
-        <div class="tk-name">OTC</div>
-        <div class="tk-big sell">10.00 ETH</div>
-        <div class="tk-usd">~$40,126</div>
-        <div class="tk-detail">50 VIBESTR @ 0.2 ETH each</div>
+    <div class="s-item">
+        <div class="s-label">Adj. P&L (w/ holdings)</div>
+        <div class="s-val r">-0.32</div>
+        <div class="s-usd">$77,550</div>
     </div>
 </div>
 
-<!-- Still Holds -->
-<div class="tokens" style="grid-template-columns: repeat(3, 1fr); margin-top: 0;">
-    <div class="tk" style="border-color: #58a6ff;">
-        <div class="tk-name">Still Holds: GVC</div>
-        <div class="tk-big" style="color: #58a6ff;">178 NFTs</div>
-        <div class="tk-usd">~33.64e (~$61,061)</div>
-        <div class="tk-detail">73 DGMD22 (floor) + 105 vault (per-NFT offers)</div>
+<!-- VIBESTR -->
+<div class="asset">
+    <div class="asset-head">
+        <span class="asset-name">VIBESTR</span>
+        <span class="asset-tag">ERC-20 Token</span>
     </div>
-    <div class="tk" style="border-color: #58a6ff;">
-        <div class="tk-name">Still Holds: VIBESTR</div>
-        <div class="tk-big" style="color: #58a6ff;">10,013,424</div>
-        <div class="tk-usd">~3.11e (~$5,652)</div>
-        <div class="tk-detail">~10M tokens in DGMD22</div>
+    <div class="asset-stats">
+        <div class="as"><div class="as-label">ETH In (Bought)</div><div class="as-val r">49.58</div><div class="as-sub">$179,869</div></div>
+        <div class="as"><div class="as-label">ETH Out (Sold)</div><div class="as-val g">49.07</div><div class="as-sub">$146,541</div></div>
+        <div class="as"><div class="as-label">OTC Sells</div><div class="as-val g">10.00</div><div class="as-sub">50 VIBESTR @ 0.2e</div></div>
+        <div class="as"><div class="as-label">Net</div><div class="as-val g">+9.49</div><div class="as-sub">$6,799</div></div>
     </div>
-    <div class="tk" style="border-color: #f85149;">
-        <div class="tk-name">Adjusted P&L (incl. holdings)</div>
-        <div class="tk-big sell">-214.12e</div>
-        <div class="tk-usd">~$763,831</div>
-        <div class="tk-detail">Realized -250.88e + holdings ~36.76e</div>
-    </div>
-</div>
-
-<!-- Per-wallet table -->
-<div class="tbl-wrap">
-    <div class="tbl-title">Per-Wallet Breakdown</div>
-    <div class="tbl-note">All values in ETH &middot; Net column includes USD at time of transaction</div>
     <table>
-        <thead>
-            <tr>
-                <th style="text-align:left">Wallet</th>
-                <th>VIBESTR ETH In</th>
-                <th>VIBESTR ETH Out</th>
-                <th>GVC ETH In</th>
-                <th>GVC ETH Out</th>
-                <th>STOKED (ETH)</th>
-                <th>MOODS (ETH)</th>
-                <th>Net (ETH)</th>
+        <tr><th>Wallet</th><th>ETH In</th><th>ETH Out</th><th>Net</th></tr>
+        <tr>
+                <td class="wn">IKZ1</td>
+                <td class="n r">49.58</td>
+                <td class="n g">49.07</td>
+                <td class="n r">-0.51</td>
+            </tr><tr>
+                <td class="wn">DGMD22</td>
+                <td class="n r">0.00</td>
+                <td class="n g">0.00</td>
+                <td class="n r">+0.00</td>
+            </tr><tr>
+                <td class="wn">EraOfVibes</td>
+                <td class="n r">0.00</td>
+                <td class="n g">0.00</td>
+                <td class="n r">+0.00</td>
+            </tr><tr>
+                <td class="wn">Extra25</td>
+                <td class="n r">0.00</td>
+                <td class="n g">0.00</td>
+                <td class="n r">+0.00</td>
+            </tr><tr>
+                <td class="wn">InvestmentFund1</td>
+                <td class="n r">0.00</td>
+                <td class="n g">0.00</td>
+                <td class="n r">+0.00</td>
             </tr>
-        </thead>
-        <tbody>
-            <tr>
-            <td class="wallet-name">IKZ1<span class="addr">0xb206...2b11</span></td>
-            <td class="num buy">49.58</td>
-            <td class="num sell">102.47</td>
-            <td class="num buy">62.04</td>
-            <td class="num sell">3.14</td>
-            <td class="num sell">1.91</td>
-            <td class="num sell">0.00</td>
-            <td class="num loss">-4.09<span class="usd-sub">$44,639</span></td>
-        </tr><tr>
-            <td class="wallet-name">DGMD22<span class="addr">0x2d13...e42e</span></td>
-            <td class="num buy">28.72</td>
-            <td class="num sell">14.63</td>
-            <td class="num buy">140.31</td>
-            <td class="num sell">0.55</td>
-            <td class="num sell">1.03</td>
-            <td class="num sell">0.83</td>
-            <td class="num loss">-152.00<span class="usd-sub">$553,137</span></td>
-        </tr><tr>
-            <td class="wallet-name">EraOfVibes<span class="addr">0x6623...13cf</span></td>
-            <td class="num buy">13.58</td>
-            <td class="num sell">5.84</td>
-            <td class="num buy">56.37</td>
-            <td class="num sell">12.03</td>
-            <td class="num sell">1.31</td>
-            <td class="num sell">0.00</td>
-            <td class="num loss">-50.77<span class="usd-sub">$106,993</span></td>
-        </tr><tr>
-            <td class="wallet-name">Extra25<span class="addr">0x83e5...f35d</span></td>
-            <td class="num buy">6.77</td>
-            <td class="num sell">0.02</td>
-            <td class="num buy">19.32</td>
-            <td class="num sell">12.68</td>
-            <td class="num sell">1.31</td>
-            <td class="num sell">0.00</td>
-            <td class="num loss">-12.07<span class="usd-sub">$34,683</span></td>
-        </tr><tr>
-            <td class="wallet-name">InvestmentFund1<span class="addr">0xa186...864b</span></td>
-            <td class="num buy">6.68</td>
-            <td class="num sell">3.39</td>
-            <td class="num buy">48.87</td>
-            <td class="num sell">6.90</td>
-            <td class="num sell">3.32</td>
-            <td class="num sell">0.00</td>
-            <td class="num loss">-41.94<span class="usd-sub">$131,219</span></td>
-        </tr>
-            <tr class="total-row">
-                <td class="wallet-name">TOTAL</td>
-                <td class="num buy">105.33</td>
-                <td class="num sell">126.34</td>
-                <td class="num buy">326.90</td>
-                <td class="num sell">35.30</td>
-                <td class="num sell">8.89</td>
-                <td class="num sell">0.83</td>
-                <td class="num loss">-250.88<span class="usd-sub">$830,544</span></td>
-            </tr>
-        </tbody>
+        <tr class="tot"><td class="wn">Total</td><td class="n r">49.58</td><td class="n g">49.07</td><td class="n r">-0.51</td></tr>
     </table>
 </div>
 
-<!-- Flow explanation -->
+<!-- GVC -->
+<div class="asset">
+    <div class="asset-head">
+        <span class="asset-name">GVC (Good Vibes Club)</span>
+        <span class="asset-tag">ERC-721 NFT</span>
+    </div>
+    <div class="asset-stats">
+        <div class="as"><div class="as-label">ETH In (81 bought)</div><div class="as-val r">62.04</div><div class="as-sub">$188,518</div></div>
+        <div class="as"><div class="as-label">ETH Out (48 sold)</div><div class="as-val g">5.76</div><div class="as-sub">$14,104</div></div>
+        <div class="as"><div class="as-label">Net</div><div class="as-val r">-56.28</div><div class="as-sub">$174,414</div></div>
+    </div>
+    <table>
+        <tr><th>Wallet</th><th>ETH In</th><th>ETH Out</th><th>Net</th></tr>
+        <tr>
+                <td class="wn">IKZ1</td>
+                <td class="n r">62.04</td>
+                <td class="n g">5.76</td>
+                <td class="n r">-56.28</td>
+            </tr><tr>
+                <td class="wn">DGMD22</td>
+                <td class="n r">0.00</td>
+                <td class="n g">0.00</td>
+                <td class="n r">+0.00</td>
+            </tr><tr>
+                <td class="wn">EraOfVibes</td>
+                <td class="n r">0.00</td>
+                <td class="n g">0.00</td>
+                <td class="n r">+0.00</td>
+            </tr><tr>
+                <td class="wn">Extra25</td>
+                <td class="n r">0.00</td>
+                <td class="n g">0.00</td>
+                <td class="n r">+0.00</td>
+            </tr><tr>
+                <td class="wn">InvestmentFund1</td>
+                <td class="n r">0.00</td>
+                <td class="n g">0.00</td>
+                <td class="n r">+0.00</td>
+            </tr>
+        <tr class="tot"><td class="wn">Total</td><td class="n r">62.04</td><td class="n g">5.76</td><td class="n r">-56.28</td></tr>
+    </table>
+</div>
+
+<!-- MOODS -->
+<div class="asset">
+    <div class="asset-head">
+        <span class="asset-name">MOODS</span>
+        <span class="asset-tag">ERC-721 NFT &middot; from Cryo Chamber</span>
+    </div>
+    <div class="asset-stats">
+        <div class="as"><div class="as-label">ETH In</div><div class="as-val" style="color:#484f58">0</div><div class="as-sub">Free from GVC Cryo</div></div>
+        <div class="as"><div class="as-label">ETH Out (10 sold)</div><div class="as-val g">0.8290</div><div class="as-sub">$2,661</div></div>
+    </div>
+    <table>
+        <tr><th>Wallet</th><th>ETH Out</th></tr>
+        <tr>
+                    <td class="wn">DGMD22</td>
+                    <td class="n g">0.8290</td>
+                </tr>
+        <tr class="tot"><td class="wn">Total</td><td class="n g">0.8290</td></tr>
+    </table>
+</div>
+
+<!-- STOKED -->
+<div class="asset">
+    <div class="asset-head">
+        <span class="asset-name">STOKED</span>
+        <span class="asset-tag">Token &middot; from MOODS &rarr; ANVIL</span>
+    </div>
+    <div class="asset-stats">
+        <div class="as"><div class="as-label">ETH In</div><div class="as-val" style="color:#484f58">0</div><div class="as-sub">Free from ANVIL</div></div>
+        <div class="as"><div class="as-label">ETH Out (25 sells)</div><div class="as-val g">8.89</div><div class="as-sub">$20,691</div></div>
+    </div>
+    <table>
+        <tr><th>Wallet</th><th>ETH Out</th></tr>
+        <tr>
+                    <td class="wn">IKZ1</td>
+                    <td class="n g">1.9108</td>
+                </tr><tr>
+                    <td class="wn">DGMD22</td>
+                    <td class="n g">1.0282</td>
+                </tr><tr>
+                    <td class="wn">EraOfVibes</td>
+                    <td class="n g">1.3150</td>
+                </tr><tr>
+                    <td class="wn">Extra25</td>
+                    <td class="n g">1.3107</td>
+                </tr><tr>
+                    <td class="wn">InvestmentFund1</td>
+                    <td class="n g">3.3233</td>
+                </tr>
+        <tr class="tot"><td class="wn">Total</td><td class="n g">8.89</td></tr>
+    </table>
+</div>
+
+<!-- Still Holds -->
+<div class="holdings">
+    <div class="hold-card">
+        <div class="label">Still Holds: GVC</div>
+        <div class="val">178 NFTs</div>
+        <div class="detail">33.64e &middot; $61,061</div>
+        <div class="detail">73 DGMD22 (floor) + 105 vault (per-NFT offers)</div>
+    </div>
+    <div class="hold-card">
+        <div class="label">Still Holds: VIBESTR</div>
+        <div class="val">10,013,424</div>
+        <div class="detail">3.11e &middot; $5,652</div>
+        <div class="detail">~10M tokens in DGMD22</div>
+    </div>
+</div>
+
+<!-- Flow -->
 <div class="flow">
-    <strong>Token flow:</strong>
-    ETH <span class="arrow">&rarr;</span> buy <span class="buy">GVC</span> &amp; <span class="buy">VIBESTR</span>
-    <span class="arrow">&rarr;</span> Cryo Chamber (1 GVC = 3 MOODS)
-    <span class="arrow">&rarr;</span> some <span class="sell">MOODS sold</span> directly, most MOODS <span class="arrow">&rarr;</span> ANVIL <span class="arrow">&rarr;</span> <span class="sell">STOKED</span> <span class="arrow">&rarr;</span> sold for ETH.
-    No ETH was spent buying STOKED or MOODS. OTC: 50 VIBESTR sold off-chain for 10 ETH.
-    USD values calculated using historical ETH price at time of each transaction (via DeFiLlama).
+    ETH &rarr; buy <span class="g">GVC</span> + <span class="g">VIBESTR</span>
+    &rarr; Cryo Chamber (1 GVC = 3 MOODS)
+    &rarr; some <span class="r">MOODS sold</span>, most MOODS &rarr; ANVIL &rarr; <span class="r">STOKED sold</span> for ETH.
+    No ETH was spent on STOKED or MOODS. OTC: 50 VIBESTR sold off-chain for 10e.
 </div>
 
 <div class="foot">
-    <strong>Wallets:</strong>
     IKZ1: <code>0xb206a7...</code> &middot; DGMD22: <code>0x2d13c8...</code> &middot; EraOfVibes: <code>0x662307...</code> &middot; Extra25: <code>0x83e574...</code> &middot; InvestmentFund1: <code>0xa1862a...</code>
-    <br>Sources: Etherscan V2 (VIBESTR, GVC), Robinhood Chain (STOKED), OpenSea (MOODS), Manual (OTC)
-    <br>USD prices: DeFiLlama historical ETH/USD at time of each transaction
+    + vault: <code>0x8972e0...</code>
+    <br>Sources: Etherscan V2, Robinhood Chain, OpenSea, DeFiLlama
 </div>
 
 </body>

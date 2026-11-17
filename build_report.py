@@ -190,34 +190,50 @@ def build_report():
     adjusted_net = grand_net + total_hold_eth
     adjusted_net_usd = grand_net_usd + total_hold_usd
 
-    # Wallet rows for the table
-    wallet_rows = ''
-    for wn in WALLETS:
-        s = stats[wn]
-        addr = WALLET_ADDRS[wn][:6] + '...' + WALLET_ADDRS[wn][-4:]
-        w_in = s['vib_buy'] + s['gvc_buy']
-        w_out = s['vib_sell'] + s['gvc_sell'] + s['stk_eth'] + s['moods_eth']
-        w_net = w_out - w_in
-        w_in_usd = s['vib_buy_usd'] + s['gvc_buy_usd']
-        w_out_usd = s['vib_sell_usd'] + s['gvc_sell_usd'] + s['stk_usd'] + s['moods_usd']
-        w_net_usd = w_out_usd - w_in_usd
+    # Build per-asset wallet rows
+    def asset_rows(key_in, key_out, key_in_usd=None, key_out_usd=None):
+        rows = ''
+        for wn in WALLETS:
+            s = stats[wn]
+            eth_in = s.get(key_in, 0)
+            eth_out = s.get(key_out, 0)
+            net = eth_out - eth_in
+            rows += f'''<tr>
+                <td class="wn">{wn}</td>
+                <td class="n r">{eth_in:.2f}</td>
+                <td class="n g">{eth_out:.2f}</td>
+                <td class="n {'g' if net > 0 else 'r'}">{net:+.2f}</td>
+            </tr>'''
+        return rows
 
-        wallet_rows += f'''<tr>
-            <td class="wallet-name">{wn}<span class="addr">{addr}</span></td>
-            <td class="num buy">{s['vib_buy']:.2f}</td>
-            <td class="num sell">{s['vib_sell']:.2f}</td>
-            <td class="num buy">{s['gvc_buy']:.2f}</td>
-            <td class="num sell">{s['gvc_sell']:.2f}</td>
-            <td class="num sell">{s['stk_eth']:.2f}</td>
-            <td class="num sell">{s['moods_eth']:.2f}</td>
-            <td class="num {'profit' if w_net > 0 else 'loss'}">{w_net:+.2f}<span class="usd-sub">{fmt_usd(abs(w_net_usd))}</span></td>
-        </tr>'''
+    def sells_only_rows(key_eth, key_usd):
+        rows = ''
+        for wn in WALLETS:
+            s = stats[wn]
+            eth = s.get(key_eth, 0)
+            if eth > 0:
+                rows += f'''<tr>
+                    <td class="wn">{wn}</td>
+                    <td class="n g">{eth:.4f}</td>
+                </tr>'''
+        return rows
+
+    vibestr_rows = asset_rows('vib_buy', 'vib_sell')
+    gvc_rows = asset_rows('gvc_buy', 'gvc_sell')
+    stoked_rows = sells_only_rows('stk_eth', 'stk_usd')
+    moods_rows = sells_only_rows('moods_eth', 'moods_usd')
 
     # Token P&L bars
     vib_net = t_vib_sell + OTC_ETH - t_vib_buy
     vib_net_usd = t_vib_sell_usd + otc_usd - t_vib_buy_usd
     gvc_net = t_gvc_sell - t_gvc_buy
     gvc_net_usd = t_gvc_sell_usd - t_gvc_buy_usd
+
+    # Totals for display
+    t_gvc_n_buy = sum(s['gvc_n_buy'] for s in stats.values())
+    t_gvc_n_sold = sum(s['gvc_n_sold'] for s in stats.values())
+    t_stk_sells = sum(s['stk_sells'] for s in stats.values())
+    t_moods_n = sum(s['moods_n'] for s in stats.values())
 
     html = f'''<!DOCTYPE html>
 <html lang="en">
@@ -228,270 +244,260 @@ def build_report():
 <style>
 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
 body {{
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #0a0e14;
-    color: #c9d1d9;
-    padding: 24px 28px;
-    max-width: 1200px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0d1117;
+    color: #b1bac4;
+    padding: 32px;
+    max-width: 960px;
     margin: 0 auto;
 }}
+a {{ color: #58a6ff; text-decoration: none; }}
 
-/* Header */
-.hdr {{ display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; }}
-h1 {{ color: #fff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }}
-.ts {{ color: #3d4450; font-size: 10px; }}
+.header {{ margin-bottom: 32px; }}
+.header h1 {{ color: #e6edf3; font-size: 20px; font-weight: 700; }}
+.header .sub {{ color: #484f58; font-size: 11px; margin-top: 4px; }}
 
-/* Hero cards row */
-.hero {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }}
-.hero-card {{
-    background: #111820;
-    border: 1px solid #1c2432;
-    border-radius: 10px;
-    padding: 16px 18px;
-    position: relative;
+/* Summary strip */
+.summary {{
+    display: flex;
+    gap: 32px;
+    padding: 20px 24px;
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}}
+.s-item {{ }}
+.s-label {{ font-size: 10px; color: #484f58; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }}
+.s-val {{ font-size: 22px; font-weight: 700; font-family: 'SF Mono', ui-monospace, monospace; margin-top: 2px; }}
+.s-usd {{ font-size: 11px; color: #484f58; font-family: 'SF Mono', ui-monospace, monospace; }}
+.r {{ color: #f85149; }}
+.g {{ color: #3fb950; }}
+.b {{ color: #58a6ff; }}
+
+/* Asset section */
+.asset {{
+    margin-bottom: 24px;
+    border: 1px solid #21262d;
+    border-radius: 8px;
     overflow: hidden;
 }}
-.hero-card::before {{
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
+.asset-head {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    background: #161b22;
+    border-bottom: 1px solid #21262d;
 }}
-.hc-in::before {{ background: #3fb950; }}
-.hc-out::before {{ background: #f85149; }}
-.hc-net::before {{ background: #58a6ff; }}
-.hc-label {{ color: #6e7681; font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }}
-.hc-value {{ font-size: 32px; font-weight: 800; margin-top: 4px; letter-spacing: -1px; font-family: 'SF Mono', monospace; }}
-.hc-usd {{ font-size: 14px; font-weight: 600; margin-top: 2px; font-family: 'SF Mono', monospace; opacity: 0.7; }}
-.hc-sub {{ color: #3d4450; font-size: 10px; margin-top: 2px; }}
-
-/* Token breakdown cards */
-.tokens {{ display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }}
-.tk {{
-    background: #111820;
-    border: 1px solid #1c2432;
-    border-radius: 10px;
-    padding: 14px;
-    text-align: center;
-}}
-.tk-name {{ color: #58a6ff; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }}
-.tk-big {{ font-size: 20px; font-weight: 800; font-family: 'SF Mono', monospace; letter-spacing: -0.5px; }}
-.tk-row {{ display: flex; justify-content: space-between; font-size: 11px; margin-top: 4px; font-family: 'SF Mono', monospace; }}
-.tk-detail {{ color: #484f58; font-size: 10px; margin-top: 4px; }}
-.tk-usd {{ color: #6e7681; font-size: 10px; margin-top: 2px; font-family: 'SF Mono', monospace; }}
-.tk-net {{ font-size: 13px; font-weight: 700; margin-top: 6px; font-family: 'SF Mono', monospace; }}
-
-/* Wallet table */
-.tbl-wrap {{
-    background: #111820;
-    border: 1px solid #1c2432;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 20px;
-}}
-.tbl-title {{ padding: 12px 16px 0; color: #fff; font-size: 13px; font-weight: 700; }}
-.tbl-note {{ padding: 2px 16px 0; color: #3d4450; font-size: 10px; }}
-table {{ width: 100%; border-collapse: collapse; font-size: 12px; }}
-th {{
-    text-align: right;
-    color: #3d4450;
-    font-weight: 600;
-    padding: 8px 12px;
-    font-size: 9px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid #1c2432;
-    white-space: nowrap;
-}}
-th:first-child {{ text-align: left; }}
-td {{ padding: 8px 12px; border-bottom: 1px solid #141c27; }}
-.num {{
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    font-family: 'SF Mono', monospace;
-    font-size: 12px;
-}}
-.wallet-name {{
-    font-weight: 600;
+.asset-name {{
+    font-size: 13px;
+    font-weight: 700;
     color: #e6edf3;
-    white-space: nowrap;
 }}
-.addr {{ color: #3d4450; font-size: 9px; font-family: 'SF Mono', monospace; margin-left: 6px; }}
-.total-row {{ background: #0d1219; font-weight: 700; }}
-.total-row td {{ border-top: 2px solid #1c2432; padding-top: 10px; padding-bottom: 10px; }}
-
-/* Colors */
-.buy {{ color: #3fb950; }}
-.sell {{ color: #f85149; }}
-.profit {{ color: #f85149; }}
-.loss {{ color: #3fb950; }}
-.usd-sub {{ color: #6e7681; font-size: 9px; margin-left: 4px; display: block; font-weight: 400; }}
-
-/* Flow note */
-.flow {{
-    background: #111820;
-    border: 1px solid #1c2432;
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 11px;
+.asset-tag {{
+    font-size: 10px;
     color: #484f58;
+    background: #21262d;
+    padding: 2px 8px;
+    border-radius: 10px;
+}}
+.asset-stats {{
+    display: flex;
+    gap: 24px;
+    padding: 12px 20px;
+    background: #0d1117;
+    border-bottom: 1px solid #21262d;
+    flex-wrap: wrap;
+}}
+.as {{ }}
+.as-label {{ font-size: 9px; color: #484f58; text-transform: uppercase; letter-spacing: 0.3px; }}
+.as-val {{ font-size: 15px; font-weight: 700; font-family: 'SF Mono', ui-monospace, monospace; }}
+.as-sub {{ font-size: 10px; color: #484f58; font-family: 'SF Mono', ui-monospace, monospace; }}
+
+/* Mini tables inside assets */
+.asset table {{ width: 100%; border-collapse: collapse; }}
+.asset th {{
+    text-align: right; font-size: 9px; color: #484f58; font-weight: 600;
+    padding: 6px 16px; text-transform: uppercase; letter-spacing: 0.3px;
+    background: #0d1117; border-bottom: 1px solid #21262d;
+}}
+.asset th:first-child {{ text-align: left; }}
+.asset td {{ padding: 6px 16px; border-bottom: 1px solid #161b22; }}
+.wn {{ font-weight: 600; color: #c9d1d9; font-size: 12px; }}
+.n {{ text-align: right; font-family: 'SF Mono', ui-monospace, monospace; font-size: 12px; font-variant-numeric: tabular-nums; }}
+.asset .tot td {{ background: #161b22; font-weight: 700; border-top: 1px solid #21262d; }}
+
+/* Holdings */
+.holdings {{
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}}
+.hold-card {{
+    flex: 1;
+    min-width: 200px;
+    padding: 16px 20px;
+    background: #161b22;
+    border: 1px solid #1f6feb33;
+    border-radius: 8px;
+}}
+.hold-card .label {{ font-size: 10px; color: #58a6ff; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }}
+.hold-card .val {{ font-size: 20px; font-weight: 700; color: #e6edf3; font-family: 'SF Mono', ui-monospace, monospace; margin-top: 4px; }}
+.hold-card .detail {{ font-size: 11px; color: #484f58; margin-top: 4px; }}
+
+/* Flow */
+.flow {{
+    padding: 14px 20px;
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    font-size: 11px; color: #484f58; line-height: 1.7;
     margin-bottom: 16px;
-    line-height: 1.6;
 }}
-.flow strong {{ color: #6e7681; }}
-.flow .arrow {{ color: #3d4450; }}
 
-/* Footer */
-.foot {{ font-size: 9px; color: #2d333b; padding-top: 10px; border-top: 1px solid #1c2432; }}
-.foot code {{ font-size: 8px; color: #3d4450; }}
+.foot {{ font-size: 9px; color: #30363d; margin-top: 12px; }}
+.foot code {{ font-size: 8px; color: #484f58; }}
 
-@media (max-width: 900px) {{
-    .tokens {{ grid-template-columns: repeat(3, 1fr); }}
-    .hero {{ grid-template-columns: 1fr; }}
-    body {{ padding: 14px; }}
-}}
-@media (max-width: 600px) {{
-    .tokens {{ grid-template-columns: 1fr 1fr; }}
-    table {{ font-size: 10px; }}
-    th, td {{ padding: 6px 8px; }}
+@media (max-width: 700px) {{
+    body {{ padding: 16px; }}
+    .summary {{ flex-direction: column; gap: 16px; }}
+    .asset-stats {{ flex-direction: column; gap: 8px; }}
+    .holdings {{ flex-direction: column; }}
 }}
 </style>
 </head>
 <body>
 
-<div class="hdr">
+<div class="header">
     <h1>DGMD Wallet Tracker</h1>
-    <span class="ts">Updated {now} &middot; 5 wallets tracked</span>
+    <div class="sub">5 wallets &middot; updated {now}</div>
 </div>
 
-<!-- Hero cards -->
-<div class="hero">
-    <div class="hero-card hc-in">
-        <div class="hc-label">Total ETH Spent (Buys)</div>
-        <div class="hc-value buy">{grand_in:.2f} ETH</div>
-        <div class="hc-usd buy">{fmt_usd(grand_in_usd)}</div>
-        <div class="hc-sub">VIBESTR + GVC purchases across all wallets</div>
+<div class="summary">
+    <div class="s-item">
+        <div class="s-label">ETH Spent</div>
+        <div class="s-val r">{grand_in:.2f}</div>
+        <div class="s-usd">{fmt_usd(grand_in_usd)}</div>
     </div>
-    <div class="hero-card hc-out">
-        <div class="hc-label">Total ETH Received (Sells)</div>
-        <div class="hc-value sell">{grand_out:.2f} ETH</div>
-        <div class="hc-usd sell">{fmt_usd(grand_out_usd)}</div>
-        <div class="hc-sub">All sells incl. OTC &amp; STOKED</div>
+    <div class="s-item">
+        <div class="s-label">ETH Received</div>
+        <div class="s-val g">{grand_out:.2f}</div>
+        <div class="s-usd">{fmt_usd(grand_out_usd)}</div>
     </div>
-    <div class="hero-card hc-net">
-        <div class="hc-label">Net P&L</div>
-        <div class="hc-value {'sell' if grand_net > 0 else 'buy'}">{grand_net:+.2f} ETH</div>
-        <div class="hc-usd {'sell' if grand_net_usd > 0 else 'buy'}">{fmt_usd(abs(grand_net_usd))}</div>
-        <div class="hc-sub">{'Spent more than received' if grand_net < 0 else 'Received more than spent'} &middot; USD at time of each tx</div>
+    <div class="s-item">
+        <div class="s-label">Realized P&L</div>
+        <div class="s-val {'g' if grand_net > 0 else 'r'}">{grand_net:+.2f}</div>
+        <div class="s-usd">{fmt_usd(abs(grand_net_usd))}</div>
     </div>
-</div>
-
-<!-- Token breakdown -->
-<div class="tokens">
-    <div class="tk">
-        <div class="tk-name">VIBESTR</div>
-        <div class="tk-row"><span class="buy">In: {t_vib_buy:.2f}e</span><span class="sell">Out: {t_vib_sell:.2f}e</span></div>
-        <div class="tk-net {'buy' if vib_net > 0 else 'sell'}">Net: {vib_net:+.2f}e</div>
-        <div class="tk-usd">~{fmt_usd(abs(vib_net_usd))}</div>
-        <div class="tk-detail">{t_vib_sell + OTC_ETH:.2f}e total w/ OTC</div>
-    </div>
-    <div class="tk">
-        <div class="tk-name">GVC</div>
-        <div class="tk-row"><span class="buy">In: {t_gvc_buy:.2f}e</span><span class="sell">Out: {t_gvc_sell:.2f}e</span></div>
-        <div class="tk-net {'buy' if gvc_net > 0 else 'sell'}">Net: {gvc_net:+.2f}e</div>
-        <div class="tk-usd">~{fmt_usd(abs(gvc_net_usd))}</div>
-        <div class="tk-detail">{sum(s['gvc_n_buy'] for s in stats.values())} bought / {sum(s['gvc_n_sold'] for s in stats.values())} sold</div>
-    </div>
-    <div class="tk">
-        <div class="tk-name">STOKED</div>
-        <div class="tk-big sell">{t_stk_eth:.2f} ETH</div>
-        <div class="tk-usd">~{fmt_usd(t_stk_usd)}</div>
-        <div class="tk-detail">{sum(s['stk_sells'] for s in stats.values())} sells (incl. USDG &rarr; ETH)</div>
-    </div>
-    <div class="tk">
-        <div class="tk-name">MOODS</div>
-        <div class="tk-big sell">{t_moods:.4f} ETH</div>
-        <div class="tk-usd">~{fmt_usd(t_moods_usd)}</div>
-        <div class="tk-detail">{sum(s['moods_n'] for s in stats.values())} NFTs sold on OpenSea</div>
-    </div>
-    <div class="tk">
-        <div class="tk-name">OTC</div>
-        <div class="tk-big sell">{OTC_ETH:.2f} ETH</div>
-        <div class="tk-usd">~{fmt_usd(otc_usd)}</div>
-        <div class="tk-detail">50 VIBESTR @ 0.2 ETH each</div>
+    <div class="s-item">
+        <div class="s-label">Adj. P&L (w/ holdings)</div>
+        <div class="s-val {'g' if adjusted_net > 0 else 'r'}">{adjusted_net:+.2f}</div>
+        <div class="s-usd">{fmt_usd(abs(adjusted_net_usd))}</div>
     </div>
 </div>
 
-<!-- Still Holds -->
-<div class="tokens" style="grid-template-columns: repeat(3, 1fr); margin-top: 0;">
-    <div class="tk" style="border-color: #58a6ff;">
-        <div class="tk-name">Still Holds: GVC</div>
-        <div class="tk-big" style="color: #58a6ff;">{HOLDINGS_GVC} NFTs</div>
-        <div class="tk-usd">~{gvc_hold_eth:.2f}e (~{fmt_usd(gvc_hold_usd)})</div>
-        <div class="tk-detail">73 DGMD22 (floor) + 105 vault (per-NFT offers)</div>
+<!-- VIBESTR -->
+<div class="asset">
+    <div class="asset-head">
+        <span class="asset-name">VIBESTR</span>
+        <span class="asset-tag">ERC-20 Token</span>
     </div>
-    <div class="tk" style="border-color: #58a6ff;">
-        <div class="tk-name">Still Holds: VIBESTR</div>
-        <div class="tk-big" style="color: #58a6ff;">{HOLDINGS_VIBESTR:,.0f}</div>
-        <div class="tk-usd">~{vib_hold_eth:.2f}e (~{fmt_usd(vib_hold_usd)})</div>
-        <div class="tk-detail">~10M tokens in DGMD22</div>
+    <div class="asset-stats">
+        <div class="as"><div class="as-label">ETH In (Bought)</div><div class="as-val r">{t_vib_buy:.2f}</div><div class="as-sub">{fmt_usd(t_vib_buy_usd)}</div></div>
+        <div class="as"><div class="as-label">ETH Out (Sold)</div><div class="as-val g">{t_vib_sell:.2f}</div><div class="as-sub">{fmt_usd(t_vib_sell_usd)}</div></div>
+        <div class="as"><div class="as-label">OTC Sells</div><div class="as-val g">{OTC_ETH:.2f}</div><div class="as-sub">50 VIBESTR @ 0.2e</div></div>
+        <div class="as"><div class="as-label">Net</div><div class="as-val {'g' if vib_net > 0 else 'r'}">{vib_net:+.2f}</div><div class="as-sub">{fmt_usd(abs(vib_net_usd))}</div></div>
     </div>
-    <div class="tk" style="border-color: {'#3fb950' if adjusted_net > 0 else '#f85149'};">
-        <div class="tk-name">Adjusted P&L (incl. holdings)</div>
-        <div class="tk-big {'buy' if adjusted_net > 0 else 'sell'}">{adjusted_net:+.2f}e</div>
-        <div class="tk-usd">~{fmt_usd(abs(adjusted_net_usd))}</div>
-        <div class="tk-detail">Realized {grand_net:+.2f}e + holdings ~{total_hold_eth:.2f}e</div>
-    </div>
-</div>
-
-<!-- Per-wallet table -->
-<div class="tbl-wrap">
-    <div class="tbl-title">Per-Wallet Breakdown</div>
-    <div class="tbl-note">All values in ETH &middot; Net column includes USD at time of transaction</div>
     <table>
-        <thead>
-            <tr>
-                <th style="text-align:left">Wallet</th>
-                <th>VIBESTR ETH In</th>
-                <th>VIBESTR ETH Out</th>
-                <th>GVC ETH In</th>
-                <th>GVC ETH Out</th>
-                <th>STOKED (ETH)</th>
-                <th>MOODS (ETH)</th>
-                <th>Net (ETH)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {wallet_rows}
-            <tr class="total-row">
-                <td class="wallet-name">TOTAL</td>
-                <td class="num buy">{t_vib_buy:.2f}</td>
-                <td class="num sell">{t_vib_sell:.2f}</td>
-                <td class="num buy">{t_gvc_buy:.2f}</td>
-                <td class="num sell">{t_gvc_sell:.2f}</td>
-                <td class="num sell">{t_stk_eth:.2f}</td>
-                <td class="num sell">{t_moods:.2f}</td>
-                <td class="num {'profit' if grand_net > 0 else 'loss'}">{grand_net:+.2f}<span class="usd-sub">{fmt_usd(abs(grand_net_usd))}</span></td>
-            </tr>
-        </tbody>
+        <tr><th>Wallet</th><th>ETH In</th><th>ETH Out</th><th>Net</th></tr>
+        {vibestr_rows}
+        <tr class="tot"><td class="wn">Total</td><td class="n r">{t_vib_buy:.2f}</td><td class="n g">{t_vib_sell:.2f}</td><td class="n {'g' if t_vib_sell - t_vib_buy > 0 else 'r'}">{t_vib_sell - t_vib_buy:+.2f}</td></tr>
     </table>
 </div>
 
-<!-- Flow explanation -->
+<!-- GVC -->
+<div class="asset">
+    <div class="asset-head">
+        <span class="asset-name">GVC (Good Vibes Club)</span>
+        <span class="asset-tag">ERC-721 NFT</span>
+    </div>
+    <div class="asset-stats">
+        <div class="as"><div class="as-label">ETH In ({t_gvc_n_buy} bought)</div><div class="as-val r">{t_gvc_buy:.2f}</div><div class="as-sub">{fmt_usd(t_gvc_buy_usd)}</div></div>
+        <div class="as"><div class="as-label">ETH Out ({t_gvc_n_sold} sold)</div><div class="as-val g">{t_gvc_sell:.2f}</div><div class="as-sub">{fmt_usd(t_gvc_sell_usd)}</div></div>
+        <div class="as"><div class="as-label">Net</div><div class="as-val r">{gvc_net:+.2f}</div><div class="as-sub">{fmt_usd(abs(gvc_net_usd))}</div></div>
+    </div>
+    <table>
+        <tr><th>Wallet</th><th>ETH In</th><th>ETH Out</th><th>Net</th></tr>
+        {gvc_rows}
+        <tr class="tot"><td class="wn">Total</td><td class="n r">{t_gvc_buy:.2f}</td><td class="n g">{t_gvc_sell:.2f}</td><td class="n r">{gvc_net:+.2f}</td></tr>
+    </table>
+</div>
+
+<!-- MOODS -->
+<div class="asset">
+    <div class="asset-head">
+        <span class="asset-name">MOODS</span>
+        <span class="asset-tag">ERC-721 NFT &middot; from Cryo Chamber</span>
+    </div>
+    <div class="asset-stats">
+        <div class="as"><div class="as-label">ETH In</div><div class="as-val" style="color:#484f58">0</div><div class="as-sub">Free from GVC Cryo</div></div>
+        <div class="as"><div class="as-label">ETH Out ({t_moods_n} sold)</div><div class="as-val g">{t_moods:.4f}</div><div class="as-sub">{fmt_usd(t_moods_usd)}</div></div>
+    </div>
+    <table>
+        <tr><th>Wallet</th><th>ETH Out</th></tr>
+        {moods_rows}
+        <tr class="tot"><td class="wn">Total</td><td class="n g">{t_moods:.4f}</td></tr>
+    </table>
+</div>
+
+<!-- STOKED -->
+<div class="asset">
+    <div class="asset-head">
+        <span class="asset-name">STOKED</span>
+        <span class="asset-tag">Token &middot; from MOODS &rarr; ANVIL</span>
+    </div>
+    <div class="asset-stats">
+        <div class="as"><div class="as-label">ETH In</div><div class="as-val" style="color:#484f58">0</div><div class="as-sub">Free from ANVIL</div></div>
+        <div class="as"><div class="as-label">ETH Out ({t_stk_sells} sells)</div><div class="as-val g">{t_stk_eth:.2f}</div><div class="as-sub">{fmt_usd(t_stk_usd)}</div></div>
+    </div>
+    <table>
+        <tr><th>Wallet</th><th>ETH Out</th></tr>
+        {stoked_rows}
+        <tr class="tot"><td class="wn">Total</td><td class="n g">{t_stk_eth:.2f}</td></tr>
+    </table>
+</div>
+
+<!-- Still Holds -->
+<div class="holdings">
+    <div class="hold-card">
+        <div class="label">Still Holds: GVC</div>
+        <div class="val">{HOLDINGS_GVC} NFTs</div>
+        <div class="detail">{gvc_hold_eth:.2f}e &middot; {fmt_usd(gvc_hold_usd)}</div>
+        <div class="detail">73 DGMD22 (floor) + 105 vault (per-NFT offers)</div>
+    </div>
+    <div class="hold-card">
+        <div class="label">Still Holds: VIBESTR</div>
+        <div class="val">{HOLDINGS_VIBESTR:,.0f}</div>
+        <div class="detail">{vib_hold_eth:.2f}e &middot; {fmt_usd(vib_hold_usd)}</div>
+        <div class="detail">~10M tokens in DGMD22</div>
+    </div>
+</div>
+
+<!-- Flow -->
 <div class="flow">
-    <strong>Token flow:</strong>
-    ETH <span class="arrow">&rarr;</span> buy <span class="buy">GVC</span> &amp; <span class="buy">VIBESTR</span>
-    <span class="arrow">&rarr;</span> Cryo Chamber (1 GVC = 3 MOODS)
-    <span class="arrow">&rarr;</span> some <span class="sell">MOODS sold</span> directly, most MOODS <span class="arrow">&rarr;</span> ANVIL <span class="arrow">&rarr;</span> <span class="sell">STOKED</span> <span class="arrow">&rarr;</span> sold for ETH.
-    No ETH was spent buying STOKED or MOODS. OTC: 50 VIBESTR sold off-chain for {OTC_ETH:.0f} ETH.
-    USD values calculated using historical ETH price at time of each transaction (via DeFiLlama).
+    ETH &rarr; buy <span class="g">GVC</span> + <span class="g">VIBESTR</span>
+    &rarr; Cryo Chamber (1 GVC = 3 MOODS)
+    &rarr; some <span class="r">MOODS sold</span>, most MOODS &rarr; ANVIL &rarr; <span class="r">STOKED sold</span> for ETH.
+    No ETH was spent on STOKED or MOODS. OTC: 50 VIBESTR sold off-chain for {OTC_ETH:.0f}e.
 </div>
 
 <div class="foot">
-    <strong>Wallets:</strong>
     {' &middot; '.join(f'{wn}: <code>{WALLET_ADDRS[wn][:8]}...</code>' for wn in WALLETS)}
-    <br>Sources: Etherscan V2 (VIBESTR, GVC), Robinhood Chain (STOKED), OpenSea (MOODS), Manual (OTC)
-    <br>USD prices: DeFiLlama historical ETH/USD at time of each transaction
+    + vault: <code>0x8972e0...</code>
+    <br>Sources: Etherscan V2, Robinhood Chain, OpenSea, DeFiLlama
 </div>
 
 </body>
